@@ -1,4 +1,3 @@
-import json
 import os
 import shutil
 import subprocess
@@ -7,12 +6,23 @@ from typing import List
 import click
 
 from ..sites.utils.uninstalldjangoapp import uninstall_django_app
-from ..utils.config import PROJECT_ROOT
+from ..utils.config import (
+    PROJECT_ROOT,
+    get_app_root_path,
+    get_registered_apps,
+    remove_plug_app,
+)
 
 
 @click.command()
 @click.argument("app")
-def dropapp(app: str) -> None:
+@click.option(
+    "--plug",
+    "plug_name",
+    default=None,
+    help="Optional plug name to disambiguate app location.",
+)
+def dropapp(app: str, plug_name: str) -> None:
     """
     Delete the specified Django app, uninstall it from all sites using `3plug uninstallapp`,
     and remove it from the configuration.
@@ -21,18 +31,11 @@ def dropapp(app: str) -> None:
         app (str): The name of the app to delete.
     """
     # Path to the custom app directory
-    apps_txt_path: str = os.path.join(PROJECT_ROOT, "config", "apps.txt")
-    if not os.path.exists(apps_txt_path):
-        click.echo("No apps found in apps.txt.")
+    # Load apps from plug apps.txt files
+    apps: List[str] = get_registered_apps()
+    if not apps:
+        click.echo("No apps found in plug registries.")
         return
-
-    # Load apps from apps.txt
-    with open(apps_txt_path, "r") as settings_file:
-        apps: List[str] = [
-            line.strip()
-            for line in settings_file.readlines()
-            if line.strip() and not line.startswith("#")
-        ]
 
     # Prompt for app if not provided
     if not app:
@@ -52,7 +55,7 @@ def dropapp(app: str) -> None:
     else:
         selected_app = app
         if selected_app not in apps:
-            click.echo(f"App '{app}' not found in apps.txt.")
+            click.echo(f"App '{app}' not found in plug registries.")
             return
 
     # Confirm the deletion
@@ -64,7 +67,13 @@ def dropapp(app: str) -> None:
         return
 
     # Path to the app folder
-    custom_app_path: str = os.path.join(PROJECT_ROOT, "apps", selected_app)
+    custom_app_path = get_app_root_path(selected_app, plug_name=plug_name)
+    if not custom_app_path:
+        click.echo(
+            f"App folder for '{selected_app}' was not found. "
+            "Provide --plug if the app name exists in multiple plugs."
+        )
+        return
 
     # Delete the app folder using PowerShell with admin privileges on Windows
     try:
@@ -93,10 +102,7 @@ def dropapp(app: str) -> None:
         click.echo(f"Error deleting app folder: {e}")
         return
 
-    # Remove the app entry from apps.txt
-    with open(apps_txt_path, "w") as settings_file:
-        for line in apps:
-            if line.strip() != selected_app:
-                settings_file.write(line + "\n")
-
-    click.echo(f"The app '{selected_app}' has been removed from apps.txt.")
+    # Remove the app entry from plug apps.txt
+    resolved_plug_name = os.path.basename(os.path.dirname(custom_app_path))
+    remove_plug_app(resolved_plug_name, selected_app)
+    click.echo(f"The app '{selected_app}' has been removed from plug apps.txt.")

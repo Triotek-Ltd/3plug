@@ -65,6 +65,24 @@ If `3plug` is not on your system `PATH`, use local launchers from project root:
 .\3plug.cmd start dev
 ```
 
+## Plug-first structure
+
+3plug now uses a plug-first app layout. Apps are created inside fixed plug directories at project root.
+
+Current plugs:
+- `operations`
+- `management`
+- `administration`
+- `integrations`
+
+Each plug contains:
+- `apps.txt` (app registry for that plug)
+- `docs/`
+- `translations/`
+- `README.md`
+
+Global `config/apps.txt` is no longer used.
+
 ## Usage
 
 3plug CLI commands start with `3plug`. Here are the available commands:
@@ -145,60 +163,76 @@ or
 3plug pip i --app appname  package1 package1
 ```
 
-### Command: 3plug startapp
+### Command: 3plug set-plugs
 
-Create and start a new application.
+Set allowed plug options and scaffold plug folders.
 
 ```bash
-3plug newapp [appname]
+3plug set-plugs operations management administration integrations
 ```
 
-Example:
+### Command: 3plug list-plugs
+
+List available plug options.
 
 ```bash
-3plug installapp myapp
+3plug list-plugs
 ```
 
-### Command: 3plug deleteapp
+### Command: 3plug new-app
 
-Delete an application.
+Create a new app in a selected plug.
 
 ```bash
-3plug unistallapp [appname]
+3plug new-app my_app --plug operations
 ```
 
-Example:
+### Command: 3plug get-app
+
+Clone an app into a selected plug.
 
 ```bash
-3plug uninstallapp myapp
+3plug get-app https://github.com/example/repo.git my_app --plug integrations
 ```
 
-### Command: 3plug addmodule
+### Command: 3plug drop-app
 
-Create and start a new module.
+Delete an app and remove it from its plug registry.
 
 ```bash
-3plug newmodule [appname] [modulename]
+3plug drop-app my_app --plug operations
 ```
 
-Example:
+### Command: 3plug new-module
+
+Create a module in an app.
 
 ```bash
-3plug addmodule myapp mymodule
+3plug new-module my_app my_module
 ```
 
-### Command: 3plug deletemodule
+### Command: 3plug drop-module
 
-Delete a module.
+Delete a module from an app.
 
 ```bash
-3plug dropmodule [appname] [modulename]
+3plug drop-module my_app my_module
 ```
 
-Example:
+### Command: 3plug new-doc
+
+Create a document in an app module.
 
 ```bash
-3plug dropmodule myapp mymodule
+3plug new-doc --app my_app --module my_module my_doc
+```
+
+### Command: 3plug drop-doc
+
+Delete a document from an app module.
+
+```bash
+3plug drop-doc --app my_app --module my_module my_doc
 ```
 
 ## Development

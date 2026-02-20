@@ -1,4 +1,3 @@
-import json
 import os
 import subprocess
 import sys
@@ -15,10 +14,20 @@ def get_python_executable(project_root: str) -> str:
     Returns:
         str: The path to the Python executable.
     """
-    venv_path = os.path.join(project_root, "env")
-    if sys.platform.startswith("win"):
-        return os.path.join(venv_path, "Scripts", "python.exe")
-    return os.path.join(venv_path, "bin", "python")
+    venv_candidates = [
+        os.path.join(project_root, "env"),
+        os.path.join(project_root, ".venv"),
+    ]
+    for venv_path in venv_candidates:
+        if sys.platform.startswith("win"):
+            candidate = os.path.join(venv_path, "Scripts", "python.exe")
+        else:
+            candidate = os.path.join(venv_path, "bin", "python")
+        if os.path.exists(candidate):
+            return candidate
+    raise FileNotFoundError(
+        "Python executable not found in env/.venv. Run `3plug setup` first."
+    )
 
 
 def remove_app_from_installed_apps(app: str, app_name: str, settings_path: str) -> None:
@@ -47,17 +56,32 @@ def remove_app_from_installed_apps(app: str, app_name: str, settings_path: str) 
     updated_settings: List[str] = []
     app_found: bool = False
     path_app_found: bool = False
+    skip_next_custom_append = False
     for line in settings_content:
+        if skip_next_custom_append:
+            if line.strip() == f'CUSTOM_APPS.append("{app_name}")':
+                path_app_found = True
+                skip_next_custom_append = False
+                continue
+            skip_next_custom_append = False
+
         # Remove the app from INSTALLED_APPS
         if line.strip() == f"'{app_name}'," or line.strip() == f'"{app_name}",':
             app_found = True
             continue  # Skip this line (removing the app)
 
+        if line.strip() == f'if os.path.isdir(os.path.join(BASE_DIR, "{app_name}")):':
+            path_app_found = True
+            skip_next_custom_append = True
+            continue
+
         # Remove both single and double quotes sys.path.append lines for the app
         if (
-            f"sys.path.append(str(os.path.join(PROJECT_PATH, 'apps', '{app}')))" in line
-            or f'sys.path.append(str(os.path.join(PROJECT_PATH, "apps", "{app}")))'
-            in line
+            "sys.path.append(str(os.path.join(PROJECT_PATH" in line
+            and f'"{app}"' in line
+        ) or (
+            "sys.path.append(str(os.path.join(PROJECT_PATH" in line
+            and f"'{app}'" in line
         ):
             path_app_found = True
             continue  # Skip this line (removing sys.path.append)

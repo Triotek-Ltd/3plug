@@ -4,7 +4,7 @@ from typing import List, Optional
 import click
 
 from ...sites.migrate.migrate import run_migration
-from ...utils.config import PROJECT_ROOT
+from ...utils.config import get_app_module_path, get_registered_apps
 from ...utils.text import to_snake_case
 from .file_handler import create_files
 
@@ -28,14 +28,7 @@ def newprintformat(print_name: str, app: Optional[str], module: Optional[str]) -
     module_id = to_snake_case(module) if module else None
 
     # Load available apps
-    apps_txt_path: str = os.path.join(PROJECT_ROOT, "config", "apps.txt")
-    apps: List[str] = []
-    with open(apps_txt_path, "r") as f:
-        apps = [
-            to_snake_case(line.strip())
-            for line in f
-            if line.strip() and not line.startswith("#")
-        ]
+    apps: List[str] = [to_snake_case(app_name) for app_name in get_registered_apps()]
 
     if not apps:
         click.echo("No apps found.")
@@ -48,9 +41,11 @@ def newprintformat(print_name: str, app: Optional[str], module: Optional[str]) -
         return
 
     # Load available modules for the selected app
-    module_txt_path: str = os.path.join(
-        PROJECT_ROOT, "apps", selected_app, selected_app, "modules.txt"
-    )
+    module_base_path = get_app_module_path(selected_app)
+    if not module_base_path:
+        click.echo(f"Could not locate app '{selected_app}' in any plug.")
+        return
+    module_txt_path: str = os.path.join(module_base_path, "modules.txt")
     modules: List[str] = []
     with open(module_txt_path, "r") as f:
         modules = [
@@ -70,9 +65,7 @@ def newprintformat(print_name: str, app: Optional[str], module: Optional[str]) -
         return
 
     # Define paths
-    module_path: str = os.path.join(
-        PROJECT_ROOT, "apps", selected_app, selected_app, selected_module
-    )
+    module_path: str = os.path.join(module_base_path, selected_module)
     create_files(module_path, print_name, print_id, module)
     run_migration(app=app, module=module)
 

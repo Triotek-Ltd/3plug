@@ -5,7 +5,12 @@ from typing import List, Optional, Dict, Any
 import click
 
 from ..sites.migrate.migrate import run_migration
-from ..utils.config import PROJECT_ROOT, get_all_sites, get_site_config, update_site_config
+from ..utils.config import (
+    get_all_sites,
+    get_registered_apps,
+    get_site_config,
+    update_site_config,
+)
 
 
 @click.command()
@@ -36,21 +41,11 @@ def installapp(site: Optional[str], app: str) -> None:
 
         site = sites[site_choice - 1]
  
-    # Load apps from apps.txt
-    apps_txt_path: str = os.path.join(PROJECT_ROOT, "config", "apps.txt")
-    if os.path.exists(apps_txt_path):
-        with open(apps_txt_path, "r") as apps_file:
-            apps: List[str] = [
-                line.strip()
-                for line in apps_file
-                if line.strip() and not line.startswith("#")
-            ]
-    else:
-        click.echo("No apps.txt file found.")
-        return
+    # Load apps from plug-level apps.txt registries.
+    apps: List[str] = get_registered_apps()
 
     if not apps:
-        click.echo("No available apps found in apps.txt.")
+        click.echo("No available apps found in plug registries.")
         return
 
     # Prompt for app if not provided
@@ -71,7 +66,7 @@ def installapp(site: Optional[str], app: str) -> None:
     else:
         selected_app = app
         if selected_app not in apps:
-            click.echo(f"App '{selected_app}' not found in apps.txt.")
+            click.echo(f"App '{selected_app}' not found in plug registries.")
             return
 
     # Check if the app is already installed in the site

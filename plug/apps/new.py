@@ -6,7 +6,12 @@ from typing import Dict
 import click
 
 from ..sites.utils.installdjangoapp import install_django_app
-from ..utils.config import PROJECT_ROOT
+from ..utils.config import (
+    PROJECT_ROOT,
+    add_plug_app,
+    ensure_plug_directory,
+    get_registered_plugs,
+)
 from .utils.file_creater import create_files_from_templates
 
 LICENSE_CHOICES = [
@@ -33,6 +38,7 @@ LICENSE_CHOICES = [
 
 @click.command()
 @click.argument("app_name")
+@click.option("--plug", "plug_name", default=None, help="Target plug name.")
 @click.option(
     "--title",
     prompt="App Title",
@@ -71,6 +77,7 @@ LICENSE_CHOICES = [
 )
 def newapp(
     app_name: str,
+    plug_name: str,
     title: str,
     description: str,
     publisher: str,
@@ -87,9 +94,30 @@ def newapp(
     :param email: Email of the publisher.
     :param license: License for the app.
     """
+    available_plugs = get_registered_plugs()
+    if not available_plugs:
+        click.echo("No plug options found. Add plug names to config/plugs.txt.")
+        return
+
+    if not plug_name:
+        click.echo("Select a plug:")
+        for index, plug in enumerate(available_plugs, 1):
+            click.echo(f"{index}. {plug}")
+        plug_choice: int = click.prompt("Enter plug number", type=int)
+        if plug_choice < 1 or plug_choice > len(available_plugs):
+            click.echo("Invalid plug selection.")
+            return
+        plug_name = available_plugs[plug_choice - 1]
+    elif plug_name not in available_plugs:
+        click.echo(
+            f"Invalid plug '{plug_name}'. Allowed plugs: {', '.join(available_plugs)}"
+        )
+        return
+
     # Define paths
-    temp_app_path = os.path.join(PROJECT_ROOT, "apps", f"temp_{app_name}")
-    final_app_path = os.path.join(PROJECT_ROOT, "apps", app_name)
+    plug_root = ensure_plug_directory(plug_name)
+    temp_app_path = os.path.join(plug_root, f"temp_{app_name}")
+    final_app_path = os.path.join(plug_root, app_name)
 
     # Check if the app already exists
     if os.path.exists(final_app_path):
@@ -173,11 +201,6 @@ app_license = "{license}"
         email,
     )
 
-    # Add the app to the apps.txt configuration
-    apps_txt_path = os.path.join(PROJECT_ROOT, "config", "apps.txt")
-    with open(apps_txt_path, "a") as apps_file:
-        apps_file.write(f"{app_name}\n")
-
     # Attempt to initialize a git repository
     try:
         subprocess.check_call(["git", "init"], cwd=temp_app_path)
@@ -185,7 +208,8 @@ app_license = "{license}"
 
         # Move the temporary directory to the final location
         shutil.move(temp_app_path, final_app_path)
-        install_django_app(app_name, PROJECT_ROOT)
+        add_plug_app(plug_name, app_name)
+        install_django_app(app_name, PROJECT_ROOT, app_root_path=final_app_path)
 
     except subprocess.CalledProcessError as e:
         click.echo(f"Failed to initialize Git repository: {e}")

@@ -6,7 +6,12 @@ from urllib.parse import urlparse
 import click
 
 from ..sites.utils.installdjangoapp import install_django_app
-from ..utils.config import PROJECT_ROOT
+from ..utils.config import (
+    PROJECT_ROOT,
+    add_plug_app,
+    ensure_plug_directory,
+    get_registered_plugs,
+)
 from ..utils.run_process import get_python_executable, run_subprocess
 
 
@@ -36,7 +41,8 @@ def remove_hiredis_from_toml() -> None:
 @click.command()
 @click.argument("git_url")
 @click.argument("name")
-def getapp(git_url: str, name: str) -> None:
+@click.option("--plug", "plug_name", default=None, help="Target plug name.")
+def getapp(git_url: str, name: str, plug_name: str) -> None:
     """
     Clone a Django app from a Git repository using the provided URL and optional app name.
 
@@ -51,8 +57,29 @@ def getapp(git_url: str, name: str) -> None:
         parsed_url = urlparse(git_url)
         app_name = os.path.basename(parsed_url.path).replace(".git", "")
 
+    available_plugs = get_registered_plugs()
+    if not available_plugs:
+        click.echo("No plug options found. Add plug names to config/plugs.txt.")
+        return
+
+    if not plug_name:
+        click.echo("Select a plug:")
+        for index, plug in enumerate(available_plugs, 1):
+            click.echo(f"{index}. {plug}")
+        plug_choice: int = click.prompt("Enter plug number", type=int)
+        if plug_choice < 1 or plug_choice > len(available_plugs):
+            click.echo("Invalid plug selection.")
+            return
+        plug_name = available_plugs[plug_choice - 1]
+    elif plug_name not in available_plugs:
+        click.echo(
+            f"Invalid plug '{plug_name}'. Allowed plugs: {', '.join(available_plugs)}"
+        )
+        return
+
     # Define the target directory for the new app
-    target_dir = os.path.join(PROJECT_ROOT, "apps", app_name)
+    plug_root = ensure_plug_directory(plug_name)
+    target_dir = os.path.join(plug_root, app_name)
 
     # Check if the app already exists
     if os.path.exists(target_dir):
@@ -71,15 +98,16 @@ def getapp(git_url: str, name: str) -> None:
     # Remove any 'hiredis' references in .toml files before installing
     remove_hiredis_from_toml()
 
-    # Optionally, add the app to apps.txt
-    apps_txt_path = os.path.join(PROJECT_ROOT, "config", "apps.txt")
-    with open(apps_txt_path, "a") as apps_file:
-        apps_file.write(f"{app_name}\n")
+    # Register app name for site-level commands.
+    add_plug_app(plug_name, app_name)
 
     # Run pip install after modifying .toml files
-    run_subprocess(
-        [get_python_executable(), "pip", "install", f"apps/{app_name}"],
+    pip_process = run_subprocess(
+        [get_python_executable(), "pip", "install", target_dir],
         cwd=PROJECT_ROOT,
     )
+    pip_return_code = pip_process.wait()
+    if pip_return_code != 0:
+        raise RuntimeError(f"pip install failed for app '{app_name}'")
 
-    install_django_app(app_name, PROJECT_ROOT)
+    install_django_app(app_name, PROJECT_ROOT, app_root_path=target_dir)
