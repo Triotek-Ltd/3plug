@@ -5,6 +5,9 @@ const CrossborderPrint = React.forwardRef(({ data }, ref) => {
   const [currentDate, setCurrentDate] = useState("");
   const [prof, setProf] = useState("");
   const [driver, setDriver] = useState(null);
+  const companyWebsite = data?.company_website || "";
+  const companyWebsiteLabel = companyWebsite.replace(/^https?:\/\//, "");
+  const companyEmail = data?.company_email || "";
 
   useEffect(() => {
     const today = new Date();
@@ -68,22 +71,24 @@ const CrossborderPrint = React.forwardRef(({ data }, ref) => {
             </div>
             <div className="grid grid-cols-1 self-end">
               <p className="text-sm grid grid-cols-1 font-medium self-end">
-                <a
-                  href="https://www.masafalogistics.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className=""
-                >
-                  Website:
-                  <span
-                    className="text-sm text-blue-900 self-end font-medium
-                    italic"
+                {companyWebsite ? (
+                  <a
+                    href={companyWebsite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className=""
                   >
-                    {" "}
-                    www.masafalogistics.com
-                  </span>
-                </a>
-                Email: joburg@masafalogistics.com
+                    Website:
+                    <span
+                      className="text-sm text-blue-900 self-end font-medium
+                    italic"
+                    >
+                      {" "}
+                      {companyWebsiteLabel}
+                    </span>
+                  </a>
+                ) : null}
+                {companyEmail ? <span>Email: {companyEmail}</span> : null}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs h-full self-end">

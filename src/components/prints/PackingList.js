@@ -28,7 +28,7 @@ const PackingListPrint = React.forwardRef(({ data }, ref) => {
       {/* Header */}
       <div className="flex flex-row w-full justify-between items-center mb-4 px-8">
         <img
-          src="/img/logos/masafa-logo.png"
+          src={data?.company_logo || "/img/logos/logo.png"}
           alt="Header"
           className="h-28 object-cover"
         />

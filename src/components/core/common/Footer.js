@@ -5,10 +5,12 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const { websiteSettings } = useData();
+  const productName =
+    websiteSettings?.site_title || websiteSettings?.app_name || "Platform";
 
   // Split footer_powered into name and URL
   const [poweredName, poweredUrl] =
-    websiteSettings?.footer_powered?.split(",") || ["Triotek Ltd", "triotek.io"];
+    websiteSettings?.footer_powered?.split(",") || [productName, "localhost"];
 
   // Ensure URLs in the ul have "https://"
   const formatUrl = (url) => (url?.startsWith("http") ? url : `https://${url}`);
@@ -28,10 +30,12 @@ const Footer = () => {
               >
                 &nbsp;{poweredName}&nbsp;
               </a>
-              building 3plug.
+              building {productName}.
             </div>
           </div>
-          <div>&copy; {currentYear} Triotek Ltd. All rights reserved.</div>
+          <div>
+            &copy; {currentYear} {productName}. All rights reserved.
+          </div>
           <div className="w-fit px-3 mt-0 shrink-0">
             <ul className="flex flex-wrap justify-center pl-0 mb-0 list-none lg:justify-end">
               <li className="nav-item">

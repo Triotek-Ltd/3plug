@@ -23,17 +23,25 @@ const DynamicHead = () => {
     fetchSettings();
   }, []);
 
+  const siteTitle =
+    websiteSettings?.site_title || websiteSettings?.app_name || "3plug";
+  const siteDescription =
+    websiteSettings?.meta_description ||
+    websiteSettings?.welcome_message ||
+    `${siteTitle} platform`;
+  const siteImage = websiteSettings?.app_logo || "/brand/logo-3plug.png";
+
   return (
     <Head>
-      <title>3plug by Triotek Ltd</title>
-      <meta name="description" content="3plug platform by Triotek Ltd" />
-      <meta property="og:title" content="3plug by Triotek Ltd" />
-      <meta property="og:description" content="3plug platform by Triotek Ltd" />
-      <meta property="og:image" content="/brand/logo-3plug.png" />
+      <title>{siteTitle}</title>
+      <meta name="description" content={siteDescription} />
+      <meta property="og:title" content={siteTitle} />
+      <meta property="og:description" content={siteDescription} />
+      <meta property="og:image" content={siteImage} />
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="3plug by Triotek Ltd" />
-      <meta name="twitter:description" content="3plug platform by Triotek Ltd" />
-      <meta name="twitter:image" content="/brand/logo-3plug.png" />
+      <meta name="twitter:title" content={siteTitle} />
+      <meta name="twitter:description" content={siteDescription} />
+      <meta name="twitter:image" content={siteImage} />
       {parsedHead}
     </Head>
   );

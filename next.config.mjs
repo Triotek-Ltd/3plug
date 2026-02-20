@@ -10,9 +10,6 @@ const nextConfig = {
   turbopack: {
     root: __dirname,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       {
@@ -27,11 +24,6 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "cms.destinycarehome.org",
-        pathname: "/**",
-      },
-      {
-        protocol: "http",
         hostname: "test.localhost",
         pathname: "/**",
       },

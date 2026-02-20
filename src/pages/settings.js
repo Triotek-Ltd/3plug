@@ -42,7 +42,7 @@ const SettingsPage = () => {
           className="flex items-center cursor-pointer justify-between bg-slate-100 p-2 rounded hover:bg-slate-200 transition"
         >
           <h2 className="text-lg font-semibold text-slate-900">
-            Meta Info Settings
+            Workspace Settings
           </h2>
           <FontAwesomeIcon
             icon={isMetaInfoOpen ? faChevronUp : faChevronDown}

@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 const DispatchPrint = React.forwardRef(({ data }, ref) => {
   const [currentDate, setCurrentDate] = useState("");
   const [prof, setProf] = useState("");
+  const companyWebsite = data?.company_website || "";
+  const companyWebsiteLabel = companyWebsite.replace(/^https?:\/\//, "");
 
   useEffect(() => {
     const today = new Date();
@@ -40,16 +42,18 @@ const DispatchPrint = React.forwardRef(({ data }, ref) => {
               alt="Header"
               className="h-[93px] mt-6 object-cover"
             />
-            <a
-              href="https://www.masafalogistics.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-900"
-            >
-              <h4 className="text-base font-medium italic">
-                www.masafalogistics.com
-              </h4>
-            </a>
+            {companyWebsite ? (
+              <a
+                href={companyWebsite}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-900"
+              >
+                <h4 className="text-base font-medium italic">
+                  {companyWebsiteLabel}
+                </h4>
+              </a>
+            ) : null}
           </div>
           <div className="grid grid-cols-2 gap-4 text-xs">
             <div className="flex flex-col">

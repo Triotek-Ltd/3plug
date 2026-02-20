@@ -7,6 +7,9 @@ const InvoicePrint = React.forwardRef(function InvoicePrint(
 ) {
   const [payments, setPayments] = useState([]);
   const [totalPaid, setTotalPaid] = useState(0);
+  const companyWebsite = data?.company_website || "";
+  const companyWebsiteLabel = companyWebsite.replace(/^https?:\/\//, "");
+  const paymentEndpoint = data?.payment_endpoint || "payment";
 
   const date = new Date();
   const formattedDate = `${date.getDate()}-${(date.getMonth() + 1)
@@ -82,7 +85,7 @@ const InvoicePrint = React.forwardRef(function InvoicePrint(
       try {
         const response = await fetchData(
           { invoice: data?.id },
-          `masafa/payment`
+          paymentEndpoint
         );
 
         // Format the payment records smd on the `data.payments` array
@@ -130,16 +133,18 @@ const InvoicePrint = React.forwardRef(function InvoicePrint(
               alt="Header"
               className="h-[68px] mt-6 object-cover"
             />
-            <a
-              href="https://www.masafalogistics.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-900"
-            >
-              <h4 className="text-[12px] font-medium italic">
-                www.masafalogistics.com
-              </h4>
-            </a>
+            {companyWebsite ? (
+              <a
+                href={companyWebsite}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-900"
+              >
+                <h4 className="text-[12px] font-medium italic">
+                  {companyWebsiteLabel}
+                </h4>
+              </a>
+            ) : null}
           </div>
           <div className="grid grid-cols-2 gap-4 text-[8px] h-full self-end">
             <div className="grid grid-cols-1 self-end">

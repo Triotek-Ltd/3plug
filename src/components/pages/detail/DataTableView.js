@@ -142,8 +142,7 @@ const DataTableView = ({ fieldData, field, columns = [], list = [] }) => {
       const barcodeUrl =
         typeof barcode.url === "string"
           ? barcode.url
-              .replace("/media", "/apis/media") // Replace /media with /apis/media
-              .replace("http://masafa", "https://masafa") // Replace http:// with https://
+              .replace("/media", "/apis/media")
           : barcode.url;
 
       return fetch(barcodeUrl)

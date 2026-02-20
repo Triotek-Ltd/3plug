@@ -55,7 +55,15 @@ def newsite(site_name: str, db_type: str) -> None:
         )
         db_type = "sqlite" if db_type == 1 else "mysql"
 
-    domains = [f"{site_name}.localhost", f"{site_name}.127.0.0.1"]
+    default_domains = f"localhost,127.0.0.1,{site_name}.localhost,{site_name}.127.0.0.1"
+    domains_input = click.prompt(
+        "Enter domain(s) for this site (comma-separated)",
+        default=default_domains,
+        show_default=True,
+    )
+    domains = [domain.strip() for domain in domains_input.split(",") if domain.strip()]
+    if not domains:
+        domains = [f"{site_name}.localhost", f"{site_name}.127.0.0.1"]
     if db_type == "mysql":
         # Prompt for root password
         root_password = click.prompt("Enter database root password", hide_input=True)

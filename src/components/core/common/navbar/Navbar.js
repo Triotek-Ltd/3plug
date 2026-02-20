@@ -26,6 +26,7 @@ const Navbar = () => {
   const { sidebarWidth } = useSidebar();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [canGoBack, setCanGoBack] = useState(false);
 
   const { websiteSettings } = useData();
 
@@ -38,10 +39,36 @@ const Navbar = () => {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const referrer = document.referrer;
+    if (!referrer) {
+      setCanGoBack(false);
+      return;
+    }
+
+    try {
+      const referrerUrl = new URL(referrer);
+      const sameOrigin = referrerUrl.origin === window.location.origin;
+      const isLoginReferrer = referrerUrl.pathname === "/login";
+      const isLoginPage = router.pathname === "/login";
+
+      setCanGoBack(sameOrigin && !isLoginReferrer && !isLoginPage);
+    } catch (error) {
+      setCanGoBack(false);
+    }
+  }, [router.pathname]);
+
   const handleLogout = async () => {
     await deleteFromDB("authToken");
     setIsAuthenticated(false);
     window.location.href = "/login";
+  };
+
+  const handleBack = () => {
+    if (!canGoBack) return;
+    router.back();
   };
 
   return (
@@ -51,24 +78,26 @@ const Navbar = () => {
           <Link href="/">
             <img
               src={websiteSettings?.app_logo || "/brand/logo-3plug.png"}
-              alt="3plug Logo"
+              alt="App Logo"
               className="h-10 md:h-12 ml-4 w-auto p-1 flex items-center cursor-pointer"
             />
           </Link>
           <nav className="hidden md:flex md:flex-col gap-x-4">
             <ol className="flex flex-wrap pt-1 bg-transparent rounded-lg sm:mr-16">
-              <div
-                className="flex items-center cursor-pointer pr-4 pl-8 text-sm font-semibold transition-all ease-nav-brand"
-                onClick={() => router.back()}
-              >
-                <FontAwesomeIcon
-                  icon={faArrowLeft}
-                  className={`mr-2 ${iconColor} text-gray-800`}
-                />
-                <span className={`hidden md:block ${textColor} text-gray-800`}>
-                  Back
-                </span>
-              </div>
+              {canGoBack ? (
+                <div
+                  className="flex items-center cursor-pointer pr-4 pl-8 text-sm font-semibold transition-all ease-nav-brand"
+                  onClick={handleBack}
+                >
+                  <FontAwesomeIcon
+                    icon={faArrowLeft}
+                    className={`mr-2 ${iconColor} text-gray-800`}
+                  />
+                  <span className={`hidden md:block ${textColor} text-gray-800`}>
+                    Back
+                  </span>
+                </div>
+              ) : null}
               {/* {navLinks.map((navItem, index) => (
                 <li
                   key={`nav-item-${index}`}

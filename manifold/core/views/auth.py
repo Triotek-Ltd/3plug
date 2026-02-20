@@ -41,6 +41,17 @@ def generate_secure_token_key(user_id):
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:40]
 
 
+def issue_user_token(user):
+    """
+    Rotate and return a fresh DRF auth token for the user.
+    `key` is the token PK, so update_fields-based key updates are invalid.
+    """
+    AuthToken.objects.filter(user=user).delete()
+    return AuthToken.objects.create(
+        user=user, key=generate_secure_token_key(user.id)
+    )
+
+
 class UserGroupPermissions(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -228,9 +239,7 @@ class LoginView(APIView):
         password = request.data["password"]
         user = authenticate(username=username, password=password)
         if user is not None:
-            token, created = AuthToken.objects.get_or_create(user=user)
-            token.key = generate_secure_token_key(user.id)
-            token.save(update_fields=["key"])
+            token = issue_user_token(user)
             login(request, user)
             return Response({"token": token.key}, status=status.HTTP_200_OK)
         return Response(
@@ -247,9 +256,7 @@ class OTPActivationView(APIView):
             otp.save()
             user = otp.user
 
-            token, created = AuthToken.objects.get_or_create(user=user)
-            token.key = generate_secure_token_key(user.id)
-            token.save(update_fields=["key"])
+            token = issue_user_token(user)
 
             login(request, user)
 

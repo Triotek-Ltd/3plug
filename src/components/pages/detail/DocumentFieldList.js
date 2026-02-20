@@ -49,7 +49,6 @@ const renderField = (field, data) => {
     typeof data[field.id] === "string" && data[field.id].includes("/media")
       ? data[field.id]
           .replace("/media", "/apis/media")
-          .replace("http://masafa", "https://masafa")
       : data[field.id];
 
   const renderDownloadIcon = (url, altText) => {

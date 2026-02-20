@@ -8,7 +8,7 @@ import traceback
 
 import click
 
-from ..utils.config import PROJECT_ROOT, get_all_sites, write_running_ports
+from ..utils.config import PROJECT_ROOT, get_all_sites, get_site_config, write_running_ports
 from ..utils.initialize_django import initialize_django_env
 from ..utils.run_process import get_python_executable, run_subprocess
 
@@ -47,6 +47,20 @@ def clear_next_dev_lock(nextjs_path):
             pass
 
 
+def build_site_url(site: str, mode: str, nextjs_port: int) -> str:
+    if mode != "prod":
+        return f"http://localhost:{nextjs_port}"
+
+    site_config = get_site_config(site) or {}
+    domains = site_config.get("domains", []) if isinstance(site_config, dict) else []
+    host = domains[0] if domains else f"{site}.localhost"
+    protocol = "https"
+
+    if ":" in host:
+        return f"{protocol}://{host}"
+    return f"{protocol}://{host}"
+
+
 @click.command()
 @click.argument("mode", default="prod")
 def start(mode):
@@ -78,16 +92,43 @@ def start(mode):
             else ["npm", "run", "dev", "--", "--port", str(nextjs_port)]
         )
 
-        # Start Next.js process
-        nextjs_process = run_subprocess(nextjs_command, cwd=nextjs_path)
-
-        # time.sleep(3)
         initialize_django_env()
 
-        django_process = run_subprocess(
-            [python_executable, "manage.py", "runserver", f"0.0.0.0:{django_port}"],
-            cwd=django_path,
-        )
+        startup_errors = []
+        process_holder = {"django": None, "nextjs": None}
+
+        def launch_django():
+            try:
+                process_holder["django"] = run_subprocess(
+                    [python_executable, "manage.py", "runserver", f"0.0.0.0:{django_port}"],
+                    cwd=django_path,
+                )
+            except Exception as launch_error:
+                startup_errors.append(("django", launch_error))
+
+        def launch_nextjs():
+            try:
+                process_holder["nextjs"] = run_subprocess(nextjs_command, cwd=nextjs_path)
+            except Exception as launch_error:
+                startup_errors.append(("nextjs", launch_error))
+
+        django_launch_thread = threading.Thread(target=launch_django)
+        nextjs_launch_thread = threading.Thread(target=launch_nextjs)
+
+        django_launch_thread.start()
+        nextjs_launch_thread.start()
+        django_launch_thread.join()
+        nextjs_launch_thread.join()
+
+        if startup_errors:
+            service, launch_error = startup_errors[0]
+            raise RuntimeError(f"Failed to start {service}: {launch_error}")
+
+        django_process = process_holder["django"]
+        nextjs_process = process_holder["nextjs"]
+
+        if not django_process or not nextjs_process:
+            raise RuntimeError("Failed to start Django and Next.js processes.")
 
         write_running_ports(django_port, nextjs_port)
 
@@ -119,7 +160,7 @@ def start(mode):
             if site:
                 click.echo(
                     click.style(
-                        f"Open {site} at: http://{site}.localhost:{nextjs_port}\n",
+                        f"Open {site} at: {build_site_url(site, mode, nextjs_port)}\n",
                         fg="green",
                     )
                 )
