@@ -8,7 +8,7 @@ const Footer = () => {
 
   // Split footer_powered into name and URL
   const [poweredName, poweredUrl] =
-    websiteSettings?.footer_powered?.split(",") || [];
+    websiteSettings?.footer_powered?.split(",") || ["Triotek Ltd", "triotek.io"];
 
   // Ensure URLs in the ul have "https://"
   const formatUrl = (url) => (url?.startsWith("http") ? url : `https://${url}`);
@@ -28,10 +28,10 @@ const Footer = () => {
               >
                 &nbsp;{poweredName}&nbsp;
               </a>
-              for a better web.
+              building 3plug.
             </div>
           </div>
-          <div>&copy; {currentYear} All rights reserved.</div>
+          <div>&copy; {currentYear} Triotek Ltd. All rights reserved.</div>
           <div className="w-fit px-3 mt-0 shrink-0">
             <ul className="flex flex-wrap justify-center pl-0 mb-0 list-none lg:justify-end">
               <li className="nav-item">

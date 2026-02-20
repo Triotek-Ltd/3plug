@@ -44,6 +44,27 @@ Activate virtual environment first if `3plug` is not globally available.
 
 `3plug start dev` uses the project virtual environment Python and starts Django + Next.js concurrently.
 
+Note: CLI commands now auto-run through the project virtual environment for safety.
+
+### Running Without Manual Activate
+
+If `3plug` is not on your system `PATH`, use local launchers from project root:
+
+- Git Bash:
+```bash
+./3plug start dev
+```
+
+- CMD:
+```bat
+3plug.cmd start dev
+```
+
+- PowerShell:
+```powershell
+.\3plug.cmd start dev
+```
+
 ## Usage
 
 3plug CLI commands start with `3plug`. Here are the available commands:

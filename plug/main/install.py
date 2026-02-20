@@ -6,7 +6,7 @@ from typing import Optional
 import click
 
 from ..utils.config import APPS_PATH, PROJECT_ROOT
-from ..utils.run_process import get_python_executable, get_venv_path
+from ..utils.run_process import get_activate_script, get_python_executable, get_venv_path
 from .init import perform_init
 
 
@@ -22,12 +22,7 @@ def activate_virtualenv() -> Optional[str]:
         click.echo("Virtual environment not found. Please run '3plug setup' first.")
         return None
 
-    if os.name == "nt":  # Windows
-        activate_script = os.path.join(venv_path, "Scripts", "activate.bat")
-    else:  # Unix-based
-        activate_script = os.path.join(venv_path, "bin", "activate")
-
-    return activate_script
+    return get_activate_script()
 
 
 def app_install_python_packages(app: str) -> None:

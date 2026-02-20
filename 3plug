@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ -x "$ROOT_DIR/env/Scripts/3plug.exe" ]]; then
+  exec "$ROOT_DIR/env/Scripts/3plug.exe" "$@"
+fi
+
+if [[ -x "$ROOT_DIR/.venv/Scripts/3plug.exe" ]]; then
+  exec "$ROOT_DIR/.venv/Scripts/3plug.exe" "$@"
+fi
+
+echo "3plug virtual environment not found. Run: python -m venv .venv && ./.venv/Scripts/python.exe -m pip install -e ."
+exit 1

@@ -1,15 +1,36 @@
-from typing import Any
+import os
+import subprocess
+import sys
 
 import click
 
 from .apps import *
 from .main import *
 from .sites import *
+from .utils.run_process import get_python_executable
 
 
 @click.group()
-def cli() -> None:
-    pass
+@click.pass_context
+def cli(ctx: click.Context) -> None:
+    # Bootstrap commands are allowed to run without an existing venv.
+    if ctx.invoked_subcommand in {"setup", "init"}:
+        return
+
+    venv_python = get_python_executable()
+    if not venv_python:
+        ctx.exit(1)
+
+    current_python = os.path.normcase(os.path.abspath(sys.executable))
+    target_python = os.path.normcase(os.path.abspath(venv_python))
+
+    # If already running inside the project venv, continue normally.
+    if current_python == target_python:
+        return
+
+    # Re-exec the same command inside the project virtual environment.
+    result = subprocess.call([venv_python, "-m", "plug.cli", *sys.argv[1:]])
+    ctx.exit(result)
 
 
 cli.add_command(newapp, name="new-app")

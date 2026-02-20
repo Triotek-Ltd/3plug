@@ -96,8 +96,8 @@ class CreateAppAPIView(APIView):
         options = {
             "--title": app.name,
             "--description": app.description
-            or "This is a 3plug app.",  # Default if null
-            "--publisher": app.publisher or "3plug Technologies",  # Default if null
+            or "This is a plug app.",  # Default if null
+            "--publisher": app.publisher or "Triotek Ltd",  # Default if null
             "--email": app.email or "contact@example.io",  # Default if null
             "--license": app.license or "MIT",  # Default if null
         }

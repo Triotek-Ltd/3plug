@@ -69,8 +69,13 @@ export default function App({ Component, pageProps }) {
     <>
       <AppProviders>
         <DynamicHead />
-        <div className="m-0 font-sans text-base antialiased font-normal font-lato leading-8 leading-default bg-gray-50 text-slate-500 max-h-screen w-full flex items-center justify-center">
-          <ToastContainer />
+        <div className="m-0 font-sans text-base antialiased font-normal font-lato leading-8 leading-default bg-brand-surface text-slate-700 max-h-screen w-full flex items-center justify-center">
+          <ToastContainer
+            theme="colored"
+            position="bottom-right"
+            autoClose={3500}
+            toastClassName="brand-toast"
+          />
           {/* Fixed Navbar */}
           {!isAuthPage && (
             <div className="fixed top-0 left-0 right-0 z-50 bg-gray-50">

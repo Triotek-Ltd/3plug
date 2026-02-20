@@ -49,13 +49,11 @@ const Navbar = () => {
       <div className="w-full max-w-[1536px] z-50 flex flex-wrap items-center justify-between transition-all duration-250 ease-soft-in bg-transparent">
         <div className="flex items-center justify-between w-full px-2 md:px-4 py-1">
           <Link href="/">
-            {websiteSettings?.app_logo && (
-              <img
-                src={websiteSettings?.app_logo}
-                alt="App Logo"
-                className="h-10 md:h-12 ml-4 w-auto p-1 flex items-center cursor-pointer"
-              />
-            )}
+            <img
+              src={websiteSettings?.app_logo || "/brand/logo-3plug.png"}
+              alt="3plug Logo"
+              className="h-10 md:h-12 ml-4 w-auto p-1 flex items-center cursor-pointer"
+            />
           </Link>
           <nav className="hidden md:flex md:flex-col gap-x-4">
             <ol className="flex flex-wrap pt-1 bg-transparent rounded-lg sm:mr-16">

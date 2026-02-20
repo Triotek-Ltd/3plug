@@ -23,7 +23,20 @@ const DynamicHead = () => {
     fetchSettings();
   }, []);
 
-  return <Head>{parsedHead}</Head>;
+  return (
+    <Head>
+      <title>3plug by Triotek Ltd</title>
+      <meta name="description" content="3plug platform by Triotek Ltd" />
+      <meta property="og:title" content="3plug by Triotek Ltd" />
+      <meta property="og:description" content="3plug platform by Triotek Ltd" />
+      <meta property="og:image" content="/brand/logo-3plug.png" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="3plug by Triotek Ltd" />
+      <meta name="twitter:description" content="3plug platform by Triotek Ltd" />
+      <meta name="twitter:image" content="/brand/logo-3plug.png" />
+      {parsedHead}
+    </Head>
+  );
 };
 
 export default DynamicHead;

@@ -36,21 +36,21 @@ LICENSE_CHOICES = [
 @click.option(
     "--title",
     prompt="App Title",
-    default="My 3plug App",
+    default="My Plug App",
     help="The title of your app",
     show_default=True,
 )
 @click.option(
     "--description",
     prompt="App Description",
-    default="This is a new 3plug app.",
+    default="This is a new plug app.",
     help="A short description of your app",
     show_default=True,
 )
 @click.option(
     "--publisher",
     prompt="App Publisher",
-    default="3plug Technologies",
+    default="Triotek Ltd",
     help="The publisher of your app",
     show_default=True,
 )
@@ -78,7 +78,7 @@ def newapp(
     license: str,
 ) -> None:
     """
-    Create a new 3plug-style app with the specified name.
+    Create a new plug-style app with the specified name.
 
     :param app_name: Name of the app to be created.
     :param title: Title of the app.
@@ -280,7 +280,7 @@ We welcome contributions to **{app_name}**! Please read our [Contributing Guidel
 If you have any questions, feel free to reach out to:
 
 - **Email**: {email}
-- **Website**: [www.3plug.com](https://www.3plug.com)
+- **Website**: [triotek.io](https://triotek.io)
 """
 
     # Ensure directory exists

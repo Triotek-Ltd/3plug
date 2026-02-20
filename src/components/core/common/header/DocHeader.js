@@ -77,7 +77,7 @@ const DocHeader = ({
           backgroundPositionY: "50%",
         }}
       >
-        <span className="absolute inset-y-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-purple-700 to-pink-500 opacity-60 rounded-xl"></span>
+        <span className="absolute inset-y-0 w-full h-full bg-center bg-cover brand-gradient-bg opacity-70 rounded-xl"></span>
       </div>
       <div
         style={{

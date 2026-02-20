@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { ToastContainer } from "react-toastify";
-
 const Layout = ({ children, gradientFrom, gradientTo, className = "" }) => {
   return (
     <div
@@ -12,7 +10,6 @@ const Layout = ({ children, gradientFrom, gradientTo, className = "" }) => {
         ></div>
         <div className="relative px-4 py-8 md:px-8 bg-white shadow-lg rounded-3xl w-[300px] md:w-[400px]">
           <div className="text-2xl text-black font-semibold text-center"></div>
-          <ToastContainer />
           {children}
         </div>
       </div>

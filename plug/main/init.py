@@ -46,10 +46,10 @@ def perform_init(name: str) -> None:
     # Create necessary files
     sites_json_path: str = os.path.join(project_root, "sites", "common_site_config.json") 
     procfile_path: str = os.path.join(project_root, "Procfile")
-    blox_config_path: str = os.path.join(project_root, "3plug.config")
+    plug_config_path: str = os.path.join(project_root, "3plug.config")
 
     ensure_file_exists(sites_json_path, initial_data={})
-    ensure_file_exists(blox_config_path, initial_data=[])
+    ensure_file_exists(plug_config_path, initial_data=[])
 
     with open(procfile_path, "w") as procfile:
         procfile.write(
@@ -64,17 +64,17 @@ schedule: 3plug schedule
 
     # Clone mainsite into sites/default
     core_apps_path: str = os.path.join(project_root, "apps", "core")
-    repo_url: str = "https://github.com/Softleek/3plug-core.git"
+    repo_url: str = "https://github.com/Triotek-Ltd/3plug-core.git"
     frappe_apps_path = os.path.join(project_root, "apps", "frappe")
-    frappe_repo_url = "https://github.com/Softleek/frappe.git"
+    frappe_repo_url = "https://github.com/Triotek-Ltd/frappe.git"
 
     # Clone and move 3plug-core repository
-    with tempfile.TemporaryDirectory() as temp_dir_blox:
-        blox_clone_path = os.path.join(temp_dir_blox, "3plug-core")
-        if not clone_repository(repo_url, blox_clone_path):
+    with tempfile.TemporaryDirectory() as temp_dir_plug:
+        plug_clone_path = os.path.join(temp_dir_plug, "3plug-core")
+        if not clone_repository(repo_url, plug_clone_path):
             return
 
-        if not move_repository_contents(blox_clone_path, core_apps_path):
+        if not move_repository_contents(plug_clone_path, core_apps_path):
             return
 
     # Clone and move frappe repository

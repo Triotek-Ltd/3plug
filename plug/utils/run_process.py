@@ -26,10 +26,30 @@ def get_python_executable() -> Optional[str]:
         click.echo("Virtual environment not found. Please run '3plug setup' first.")
         return None
 
-    python_executable = os.path.join(venv_path, "bin", "python3")
+    candidates = []
     if sys.platform.startswith("win"):
-        python_executable = os.path.join(venv_path, "Scripts", "python.exe")
-    return python_executable
+        candidates.append(os.path.join(venv_path, "Scripts", "python.exe"))
+    else:
+        candidates.append(os.path.join(venv_path, "bin", "python3"))
+        candidates.append(os.path.join(venv_path, "bin", "python"))
+
+    for python_executable in candidates:
+        if os.path.exists(python_executable):
+            return python_executable
+
+    click.echo("Virtual environment Python executable not found. Please run '3plug setup' first.")
+    return None
+
+
+def get_activate_script() -> Optional[str]:
+    venv_path = get_venv_path()
+    if not venv_path:
+        return None
+    if sys.platform.startswith("win"):
+        activate_script = os.path.join(venv_path, "Scripts", "activate.bat")
+    else:
+        activate_script = os.path.join(venv_path, "bin", "activate")
+    return activate_script if os.path.exists(activate_script) else None
 
 
 def run_subprocess(command: list[str], cwd: Optional[str] = None) -> subprocess.Popen:

@@ -2,13 +2,13 @@
 name = "3plug"
 version = "0.1.0"
 description = "3plug - A modular framework for Django and Next.js"
-authors = ["Softleek"]
+authors = ["Triotek Systems Ltd"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/softleek/3plug"
-repository = "https://github.com/softleek/3plug"
-documentation = "https://softleek.com/docs/3plug"
-keywords = ["django", "nextjs", "framework", "pwa", "erp", "softleek"]
+homepage = "https://github.com/Triotek-Ltd/3plug"
+repository = "https://github.com/Triotek-Ltd/3plug"
+documentation = "https://triodigitech.com/docs/3plug"
+keywords = ["django", "nextjs", "framework", "pwa", "erp", "triotek-systems-ltd"]
 packages = [
     { include = "plug" },
 ]
