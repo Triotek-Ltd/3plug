@@ -215,4 +215,6 @@ To contribute to 3plug CLI development, follow these steps:
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License.
+Copyright (c) 2026 Triotek Systems Ltd.
+See `LICENSE` for full terms.

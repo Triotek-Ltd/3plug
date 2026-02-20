@@ -1,4 +1,7 @@
 from datetime import timedelta
+import hashlib
+import secrets
+import time
 
 from core.filters import GroupFilter, PermissionFilter, UserFilter
 from core.models import OTP, User, UserIPAddress
@@ -15,6 +18,7 @@ from core.utils.sms import send_sms
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout as django_logout
 from django.contrib.auth.models import Group, Permission
+from django.conf import settings
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from rest_framework import status, viewsets
@@ -24,6 +28,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .template import GenericViewSet
+
+
+def generate_secure_token_key(user_id):
+    """
+    Generate a 40-char token key using a hashed user id + nonce + secret.
+    Keeps compatibility with DRF TokenAuthentication.
+    """
+    user_hash = hashlib.sha256(str(user_id).encode("utf-8")).hexdigest()
+    nonce = secrets.token_hex(16)
+    payload = f"{settings.SECRET_KEY}:{user_hash}:{nonce}:{time.time_ns()}"
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:40]
 
 
 class UserGroupPermissions(APIView):
@@ -214,6 +229,8 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
         if user is not None:
             token, created = AuthToken.objects.get_or_create(user=user)
+            token.key = generate_secure_token_key(user.id)
+            token.save(update_fields=["key"])
             login(request, user)
             return Response({"token": token.key}, status=status.HTTP_200_OK)
         return Response(
@@ -231,6 +248,8 @@ class OTPActivationView(APIView):
             user = otp.user
 
             token, created = AuthToken.objects.get_or_create(user=user)
+            token.key = generate_secure_token_key(user.id)
+            token.save(update_fields=["key"])
 
             login(request, user)
 

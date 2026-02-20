@@ -36,6 +36,17 @@ def stream_reader(stream, color, prefix="", first_line_only=False):
                 click.echo(click.style(f"{line}", fg=color))
 
 
+def clear_next_dev_lock(nextjs_path):
+    """Remove stale Next.js dev lock so restarts don't fail."""
+    lock_path = os.path.join(nextjs_path, ".next", "dev", "lock")
+    if os.path.exists(lock_path):
+        try:
+            os.remove(lock_path)
+            click.echo(click.style("Removed stale Next.js dev lock.", fg="yellow"))
+        except OSError:
+            pass
+
+
 @click.command()
 @click.argument("mode", default="prod")
 def start(mode):
@@ -57,6 +68,8 @@ def start(mode):
     nextjs_process = None
 
     try:
+        if mode != "prod":
+            clear_next_dev_lock(nextjs_path)
 
         # Determine Next.js command based on mode
         nextjs_command = (
@@ -151,3 +164,5 @@ def start(mode):
                 nextjs_process.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 nextjs_process.kill()
+        if mode != "prod":
+            clear_next_dev_lock(nextjs_path)

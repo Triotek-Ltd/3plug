@@ -1,126 +1,21 @@
+MIT License
 
----
+Copyright (c) 2026 Triotek Systems Ltd
 
-**Copyright [Your Name / Company]**
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
----
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-## 1. Definitions
-
-For the purposes of this License:
-
-1.1 **“Software”** refers to all source code, binaries, scripts, documentation, data, media, configuration files, and derivative works thereof comprising [Your Project Name].
-
-1.2 **“Licensee” or “You”** refers to any natural person, legal entity, organization, or corporation that accesses, uses, installs, copies, modifies, or redistributes the Software in any manner.
-
-1.3 **“Commercial Use”** shall include, without limitation, utilization of the Software for revenue generation, business operations, provision of services, deployment in production environments, or any other activity resulting in financial benefit.
-
-1.4 **“Member Use”** shall mean access granted under subscription, licensing, or consulting agreements executed with [Your Company].
-
----
-
-## 2. Grant of License – Personal / Non-Commercial Use
-
-Subject to the terms, covenants, and conditions set forth herein, [Your Company] hereby grants Licensee a **perpetual, worldwide, non-exclusive, non-transferable, royalty-free license** to:
-
-2.1 Use, install, copy, and execute the Software solely for **personal, educational, experimental, or non-commercial purposes**;
-
-2.2 Create derivative works of the Software for personal, non-commercial purposes;
-
-provided that **any Commercial Use is strictly prohibited without prior express written authorization** from [Your Company].
-
----
-
-## 3. Commercial Use & License Enforcement
-
-3.1 Licensee intending to engage in Commercial Use **must first obtain explicit written authorization** from [Your Company].
-
-3.2 [Your Company] **reserves the right to impose licensing fees, consulting fees, subscription fees, or other charges** in connection with Commercial Use.
-
-3.3 Unauthorized Commercial Use **constitutes infringement of intellectual property rights, copyright, and trade secret protections**, and [Your Company] may pursue remedies at law or in equity, including injunctions, damages, and attorneys’ fees.
-
-3.4 Commercial users may additionally be subject to **membership agreements, governance participation rules, or premium access agreements** as deemed appropriate by [Your Company].
-
----
-
-## 4. Redistribution & Attribution
-
-4.1 Redistribution of the Software, in source or binary form, **must retain this License, all copyright notices, and all attributions**.
-
-4.2 Any redistribution or derivative work for Commercial Use **requires explicit written authorization** from [Your Company].
-
-4.3 Licensee may not remove, obfuscate, or alter **any intellectual property, copyright, trademark, or attribution notices** contained in the Software.
-
----
-
-## 5. Intellectual Property Rights
-
-5.1 All copyright, trademark, trade secret, patent, or other proprietary rights in the Software **remain exclusively with [Your Company]**.
-
-5.2 Nothing in this License shall be construed to grant Licensee any **rights in patents, trademarks, or trade secrets**, except as expressly granted herein for personal, non-commercial use.
-
-5.3 Licensee acknowledges that **unauthorized use, reproduction, or commercial exploitation** of the Software **may subject Licensee to legal action**.
-
----
-
-## 6. Disclaimer of Warranty
-
-**THE SOFTWARE IS PROVIDED “AS IS”, “WITH ALL FAULTS”, AND WITHOUT WARRANTY OF ANY KIND.**
-
-6.1 [Your Company], its affiliates, officers, directors, employees, agents, and contributors **expressly disclaim any and all warranties, whether express, implied, statutory, or otherwise**, including but not limited to:
-
-* Merchantability or fitness for a particular purpose;
-* Non-infringement of third-party rights;
-* Accuracy, reliability, or completeness of the Software;
-* Performance, uptime, or suitability for any particular environment.
-
-6.2 Licensee acknowledges and agrees that **use of the Software is at Licensee’s sole risk**, and Licensee assumes all responsibility for any consequences arising from its use, modification, or deployment.
-
----
-
-## 7. Limitation of Liability
-
-7.1 Under no circumstances shall [Your Company], its affiliates, officers, directors, employees, agents, or contributors be **liable for any indirect, incidental, special, consequential, exemplary, punitive, or statutory damages**, including but not limited to:
-
-* Loss of revenue, profits, or business opportunities;
-* Data loss, corruption, or breach;
-* System downtime, interruption, or failure;
-* Claims of third parties;
-
-even if [Your Company] has been advised of the possibility of such damages.
-
-7.2 Licensee **agrees to indemnify, defend, and hold harmless [Your Company]** from any claims, demands, suits, or damages arising out of Licensee’s use of the Software, whether commercial or non-commercial.
-
----
-
-## 8. Governance & Cooperative Rights
-
-8.1 Licensee authorized for Commercial Use may participate in governance modules of the platform **only if a valid membership or license agreement exists**.
-
-8.2 Unauthorized users or non-members shall have **no governance rights**, and access to premium modules is **strictly prohibited**.
-
----
-
-## 9. Termination
-
-9.1 Any violation of this License **shall result in automatic termination** of all rights granted herein.
-
-9.2 Upon termination, Licensee **must immediately cease all use, distribution, and deployment of the Software**, and **destroy all copies** in any form, including derivative works.
-
----
-
-## 10. Governing Law & Dispute Resolution
-
-10.1 This License shall be governed by, and construed in accordance with, the laws of **[Your Jurisdiction]** without regard to conflicts of law principles.
-
-10.2 Any disputes arising under this License shall be **exclusively resolved in the competent courts of [Your Jurisdiction]**.
-
-10.3 Licensee hereby **consents to jurisdiction and venue** in such courts and waives any objections thereto.
-
----
-
-## 11. Entire Agreement
-
-This License constitutes the **entire agreement** between Licensee and [Your Company] regarding the Software and supersedes any prior agreements or understandings, whether written or oral.
-
----
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

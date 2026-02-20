@@ -1,6 +1,15 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  turbopack: {
+    root: __dirname,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -22,25 +31,26 @@ const nextConfig = {
         pathname: "/**",
       },
       {
-        protocol: "http", // Add protocol for local development
+        protocol: "http",
         hostname: "test.localhost",
         pathname: "/**",
       },
       {
-        hostname: "",
+        protocol: "http",
+        hostname: "localhost",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: "192.168.1.119",
         pathname: "/**",
       },
     ],
-  },
-  images: {
-    domains: [
-      "test.localhost",
-      "localhost",
-      "cms.destinycarehome.org",
-      "api.qrserver.com",
-      "barcode.tec-it.com",
-      "",
-    ], // Add your domain(s) here
   },
   async rewrites() {
     return [
