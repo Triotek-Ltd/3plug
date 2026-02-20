@@ -1,0 +1,126 @@
+{
+  "actions": [],
+  "allow_copy": 1,
+  "allow_import": 1,
+  "creation": "2024-12-24 00:00:00",
+  "description": "Configuration for managing documents and their fields.",
+  "doctype": "DocType",
+  "document_type": "Setup",
+  "engine": "InnoDB",
+  "field_order": [
+    "id",
+    "name",
+    "app",
+    "description",
+    "column_break_0",
+    "module",
+    "status"
+  ],
+  "fields": [
+    {
+      "fieldname": "id",
+      "fieldtype": "Data",
+      "label": "ID",
+      "icon": "faBox",
+      "bgColor": "green",
+      "read_only": 1,
+      "no_copy": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "column_break_0",
+      "fieldtype": "Column Break",
+      "width": "50%"
+    },
+    {
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "label": "Name",
+      "icon": "faNewspaper",
+      "bgColor": "purple",
+      "reqd": 1,
+      "in_standard_filter": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "app",
+      "fieldtype": "Link",
+      "options": "App",
+      "label": "App",
+      "icon": "faBox",
+      "bgColor": "green",
+      "reqd": 0,
+      "read_only": 1,
+      "in_standard_filter": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "module",
+      "fieldtype": "Link",
+      "options": "Module",
+      "label": "Module",
+      "icon": "faBox",
+      "bgColor": "green",
+      "reqd": 1,
+      "in_standard_filter": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "\nActive\nDisabled",
+      "icon": "faStoreSlash",
+      "bgColor": "blue",
+      "reqd": 1,
+      "in_standard_filter": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "description",
+      "fieldtype": "Small Text",
+      "label": "Description",
+      "icon": "faInfoCircle",
+      "bgColor": "orange",
+      "in_list_view": 1
+    }
+  ],
+  "icon": "fa fa-file",
+  "idx": 1,
+  "is_tree": 0,
+  "links": [],
+  "modified": "2024-12-24 00:00:00",
+  "modified_by": "Administrator",
+  "module": "Document",
+  "name": "Document",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "import": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Document Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Document Viewer"
+    }
+  ],
+  "search_fields": "id, name, app, module",
+  "show_name_in_global_search": 1,
+  "show_preview_popup": 1,
+  "sort_field": "creation",
+  "sort_order": "ASC",
+  "states": [],
+  "track_changes": 1
+}

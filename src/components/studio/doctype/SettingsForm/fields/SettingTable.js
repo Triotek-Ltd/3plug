@@ -1,0 +1,39 @@
+import TableField from "@/components/fields/TableField";
+import React from "react";
+
+const SettingTable = ({
+  label,
+  icon,
+  value,
+  onChange,
+  options = [],
+  className = "",
+  description,
+  item,
+  ordered,
+  ...props
+}) => {
+  return (
+    <div className="flex flex-col">
+      {label && (
+        <label className="text-sm font-medium flex items-center text-gray-700">
+          {icon && <span className="mr-2">{icon}</span>}
+          {label}
+        </label>
+      )}
+      <div className="p-1 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition ease-in-out">
+        <TableField
+          field={item}
+          value={value}
+          handleInputChange={(_, e) => onChange(e)}
+          ordered={ordered}
+        />
+      </div>
+      {description && (
+        <p className="text-xs text-gray-500 mt-1">{description}</p>
+      )}
+    </div>
+  );
+};
+
+export default SettingTable;

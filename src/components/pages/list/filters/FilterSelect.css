@@ -1,0 +1,67 @@
+/* Style the control container */
+.custom-select__control {
+  padding: 0.25rem 0; /* py-1 equivalent */
+  background-color: #ffffff;
+  border: 1px solid #cbd5e0; /* Neutral border */
+  box-shadow: none;
+}
+
+.custom-select__control:hover {
+  border-color: #4a5568; /* Hover border */
+}
+
+.custom-select__control--is-focused {
+  border-color: #4a5568; /* Focus border */
+  box-shadow: 0 0 0 1px #4a5568;
+}
+
+/* Style the menu dropdown */
+.custom-select__menu {
+  background-color: #ffffff;
+  z-index: 9999;
+}
+
+.custom-select__option {
+  padding: 0.5rem; /* Adjust padding for options */
+  background-color: #ffffff;
+  color: #4a5568;
+}
+
+.custom-select__option:hover {
+  background-color: #e2e8f0; /* Hover background */
+  color: #1a202c; /* Hover text */
+}
+
+.custom-select__option--is-focused {
+  background-color: #e2e8f0; /* Focused background */
+  color: #1a202c; /* Focused text */
+}
+
+/* Style the input/search box */
+.custom-select__input {
+  padding: 0.25rem; /* Adjust padding for input */
+  color: #4a5568;
+}
+
+/* Style the indicators (e.g., dropdown arrow) */
+.custom-select__indicators {
+  padding: 0.25rem; /* Adjust padding for indicators */
+}
+
+.custom-select__dropdown-indicator {
+  color: #4a5568;
+}
+
+.custom-select__dropdown-indicator:hover {
+  color: #2d3748; /* Hover effect for dropdown indicator */
+}
+
+/* Style the placeholder */
+.custom-select__placeholder {
+  color: #a0aec0; /* Neutral placeholder color */
+}
+
+/* Style the single value */
+.custom-select__single-value {
+  color: #4a5568; /* Text color for selected value */
+}

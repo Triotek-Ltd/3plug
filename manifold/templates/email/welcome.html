@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to Masafa Logistics</title>
+    <style>
+      /* Import Tailwind CSS */
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css");
+    </style>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div
+      class="max-w-2xl mx-auto bg-white shadow-md rounded-lg overflow-hidden my-10"
+    >
+      <div class="bg-blue-700 text-white text-center py-6">
+        <h1 class="text-3xl font-bold">Welcome to Masafa Logistics!</h1>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-800 text-lg">Hi {{ name }},</p>
+        <p class="mt-4 text-gray-700">
+          Welcome to Masafa Logistics! We are thrilled to have you on board.
+        </p>
+        <p class="mt-4 text-gray-700">
+          Your account has been successfully created. Here are your login
+          details:
+        </p>
+        <div class="mt-4 bg-gray-100 p-4 rounded-lg">
+          <p class="text-gray-800"><strong>Username:</strong> {{ username }}</p>
+          <p class="text-gray-800"><strong>Email:</strong> {{ email }}</p>
+          <p class="text-gray-800"><strong>Password:</strong> {{ password }}</p>
+        </div>
+        <p class="mt-4 text-gray-700">
+          Please keep this information secure. You can log in to your account
+          using the credentials provided above.
+        </p>
+        <p class="mt-4 text-gray-700">
+          We hope you have a great experience with us. If you have any
+          questions, feel free to reach out to our support team.
+        </p>
+        <p class="mt-6 text-gray-700">Best regards,</p>
+        <p class="text-gray-700">The Masafa Logistics Team</p>
+      </div>
+      <div class="bg-gray-200 text-center py-4">
+        <p class="text-gray-600">
+          &copy; {{ year }} Masafa Logistics. All rights reserved.
+        </p>
+        <p class="text-gray-600">
+          If you did not create this account, please
+          <a
+            href="mailto:support@masafalogistics.com"
+            class="text-blue-700 underline"
+            >contact us</a
+          >
+          immediately.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

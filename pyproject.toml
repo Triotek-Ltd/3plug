@@ -1,0 +1,124 @@
+[tool.poetry]
+name = "3plug"
+version = "0.1.0"
+description = "3plug - A modular framework for Django and Next.js"
+authors = ["Softleek"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/softleek/3plug"
+repository = "https://github.com/softleek/3plug"
+documentation = "https://softleek.com/docs/3plug"
+keywords = ["django", "nextjs", "framework", "pwa", "erp", "softleek"]
+packages = [
+    { include = "plug" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+asgiref = "*"
+autoflake = "*"
+black = "*"
+certifi = "*"
+cffi = "*"
+charset-normalizer = "*"
+cryptography = "*"
+defusedxml = "*"
+Django = "*"
+django-allauth = "*"
+django-cors-headers = "*"
+django-crontab = "*"
+django-filter = "*"
+django-multiselectfield = "*"
+djangorestframework = "*"
+flake8 = "*"
+idna = "*"
+isort = "*"
+oauthlib = "*"
+pandas = "*"
+Pillow = "*"
+pycparser = "*"
+PyJWT = "*"
+PyMySQL = "*"
+python-barcode = "*"
+python-decouple = "*"
+python3-openid = "*"
+pytz = "*"
+qrcode = "*"
+requests = "*"
+requests-oauthlib = "*"
+six = "*"
+sqlparse = "*"
+typing_extensions = "*"
+tzdata = "*"
+urllib3 = "*"
+unicode = "*"
+whitenoise = "*"
+xlrd = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-django = "*"
+pytest-cov = "*"
+mypy = "*"
+pre-commit = "*"
+bandit = "*"
+
+[tool.poetry.scripts]
+3plug = "plug.cli:cli"
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+extend-exclude = '''
+(
+    ^env
+  | ^venv
+  | ^\.venv
+  | ^migrations
+  | ^node_modules
+  | ^\..*  # Ignore all hidden directories
+  | .*\/env
+  | .*\/venv
+  | .*\/\.venv
+  | .*\/migrations
+  | .*\/node_modules
+  | .*\/\..*
+)
+'''
+
+[tool.isort]
+profile = "black"
+skip = ["env", "venv", ".venv", "migrations", "node_modules"]
+skip_glob = ["**/env", "**/venv", "**/.venv", "**/migrations", "**/node_modules", "**/.*"]
+
+[tool.mypy]
+python_version = "3.8"
+ignore_missing_imports = true
+disallow_untyped_calls = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_redundant_casts = true
+strict_optional = true
+
+[tool.pytest.ini_options]
+python_files = ["tests.py", "test_*.py", "*_test.py"]
+addopts = "--cov=plug --cov-report=xml --cov-report=html"
+
+[tool.bandit]
+exclude_dirs = ["tests", "migrations", "venv", "node_modules"]
+
+[tool.pre-commit]
+repos = [
+  { repo = "https://github.com/pre-commit/pre-commit-hooks", rev = "v4.4.0", hooks = [
+    { id = "trailing-whitespace" },
+    { id = "end-of-file-fixer" },
+    { id = "check-yaml" },
+    { id = "black" },
+    { id = "isort" },
+    { id = "flake8" }
+  ]}
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,12 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# root is the top-most level, and other levels are inherited
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
