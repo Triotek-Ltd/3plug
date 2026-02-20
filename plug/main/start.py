@@ -47,6 +47,8 @@ def start(mode):
     nextjs_path = os.path.join(PROJECT_ROOT)
 
     python_executable = get_python_executable()
+    if not python_executable:
+        return
 
     django_port = find_free_port(8000)
     nextjs_port = find_free_port(3000)

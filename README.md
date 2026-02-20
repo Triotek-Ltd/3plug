@@ -6,91 +6,43 @@
 
 ### Prerequisites
 
-Before installing 3plug CLI, ensure you have the following installed on your system:
+Before installing 3plug CLI, ensure you have:
+- **Python** 3.x
+- **pip**
+- **Node.js** 20+ and **npm**
 
-- **Python**: 3plug CLI requires Python 3.x. If you don't have Python installed, download and install it from [python.org](https://www.python.org/downloads/).
-- **Pip**: Pip is the package installer for Python. It should be installed automatically when you install Python.
-- **Node.js**: 3plug CLI requires Node.js version 20. If you don't have Node.js installed, download and install it from [nodejs.org](https://nodejs.org/).
+### First-Time Setup (Recommended)
 
-### Setup Environment
-
-#### Clone the Repository
-
-Clone your 3plug project repository from GitHub:
+Run this from the project root (`originals/3plug`):
 
 ```bash
-git remote add origin git@github.com:Triotek-Ltd/3plug.git
-git branch -M main
-git push -u origin main
+3plug setup
 ```
 
-#### Create a Virtual Environment
+What `3plug setup` does:
+- Creates virtual environment if missing (`env`).
+- Installs Python dependencies (`pip install -e .`).
+- Installs Node dependencies (`npm install`).
+- Runs Django migrations.
+- Runs Django superuser creation.
 
-It's a good practice to use a virtual environment to isolate your project dependencies from other Python projects.
+### Manual Setup (Alternative)
 
-**Using venv:**
+If needed, you can still run setup steps manually:
+- `python -m venv env`
+- Activate env (`.\env\Scripts\activate` on Windows, `source env/bin/activate` on Unix)
+- `pip install -e .`
+- `npm install`
 
-- **Windows:**
+### Start Development Server (After Setup)
 
-  ```bash
-  python -m venv env
-  ```
-
-- **Unix or MacOS:**
-
-  ```bash
-  python3 -m venv env
-  ```
-
-Activate the virtual environment:
-
-- **Windows:**
-
-  ```bash
-  env\Scripts\activate
-  ```
-
-- **Unix or MacOS:**
-
-  ```bash
-  source env/bin/activate
-  ```
-
-### Install 3plug CLI
-
-Install 3plug CLI in editable mode using pip. This allows you to make changes to the code and have them immediately available without reinstallation:
-
-```bash
-pip install -e .
-```
-
-### Setup Your Project
-
-After installing 3plug CLI, setup your project dependencies and configurations.
-
-#### Install Site & Dependencies
-
-```bash
-3plug newsite
-```
-
-#### Apply Migrations
-
-Apply database migrations if needed:
-
-```bash
-3plug migrate
-```
-
-### Start Development Server
-
-To start the development server:
+Activate virtual environment first if `3plug` is not globally available.
 
 ```bash
 3plug start dev
 ```
 
-The server will start and typically be accessible at `http://localhost:3000`.
+`3plug start dev` uses the project virtual environment Python and starts Django + Next.js concurrently.
 
 ## Usage
 
@@ -124,6 +76,14 @@ Install dependencies or packages.
 
 ```bash
 3plug install
+```
+
+### Command: 3plug setup
+
+Run first-time setup in one command.
+
+```bash
+3plug setup
 ```
 
 Install node dependencies.

@@ -7,6 +7,7 @@ from typing import NoReturn
 import click
 
 from ..utils.config import PROJECT_ROOT
+from ..utils.run_process import get_python_executable, get_venv_path
 
 
 @click.command()
@@ -20,14 +21,13 @@ def build() -> NoReturn:
     run_build() 
     
 def run_build() -> NoReturn:
-    venv_path: str = os.path.join(PROJECT_ROOT, "env")
-    if not os.path.exists(venv_path):
+    if not get_venv_path():
         click.echo("Virtual environment not found. Please run '3plug setup' first.")
         return
 
-    python_executable: str = os.path.join(venv_path, "bin", "python3")
-    if sys.platform.startswith("win"):
-        python_executable = os.path.join(venv_path, "Scripts", "python.exe")
+    python_executable = get_python_executable()
+    if not python_executable:
+        return
 
     try:
         # Build Django static files

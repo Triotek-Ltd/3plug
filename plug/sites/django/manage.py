@@ -1,34 +1,11 @@
-import json
 import os
 import subprocess
-import sys
 from typing import List, Optional
 
 import click
 
 from ...utils.config import PROJECT_ROOT
-from ...utils.file_operations import ensure_file_exists
-
-
-def get_python_executable() -> str:
-    """Get the path to the Python executable in the virtual environment.
-
-    Returns:
-        str: The path to the Python executable.
-
-    Raises:
-        FileNotFoundError: If the virtual environment is not found.
-    """
-    venv_path = os.path.join(PROJECT_ROOT, "env")
-    if not os.path.exists(venv_path):
-        click.echo("Virtual environment not found. Please run '3plug setup' first.")
-        raise FileNotFoundError("Virtual environment not found.")
-
-    python_executable = os.path.join(venv_path, "bin", "python")
-    if sys.platform.startswith("win"):
-        python_executable = os.path.join(venv_path, "Scripts", "python.exe")
-
-    return python_executable
+from ...utils.run_process import get_python_executable, get_venv_path
 
 
 @click.command()
@@ -44,14 +21,13 @@ def django(command: str, args: List[str], site: Optional[str] = None) -> None:
     """
     django_path = os.path.join(PROJECT_ROOT, "manifold")
 
-    venv_path = os.path.join(PROJECT_ROOT, "env")
-    if not os.path.exists(venv_path):
+    if not get_venv_path():
         click.echo("Virtual environment not found. Please run '3plug setup' first.")
         return
 
-    python_executable = os.path.join(venv_path, "bin", "python")
-    if sys.platform.startswith("win"):
-        python_executable = os.path.join(venv_path, "Scripts", "python.exe")
+    python_executable = get_python_executable()
+    if not python_executable:
+        return
 
     # Construct the command to be executed
     command_list = [python_executable, "manage.py", command] + list(args)

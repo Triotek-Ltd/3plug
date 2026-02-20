@@ -67,11 +67,11 @@ THIRD_PARTY_APPS = [
 
 
 # Custom Apps – Only these will be exposed via API
-CUSTOM_APPS = [
-    "core",
-    'frappe_app',
-    'shop_app',
-]
+CUSTOM_APPS = ["core"]
+if os.path.isdir(os.path.join(BASE_DIR, "frappe_app")):
+    CUSTOM_APPS.append("frappe_app")
+if os.path.isdir(os.path.join(BASE_DIR, "shop_app")):
+    CUSTOM_APPS.append("shop_app")
 
 # Final Installed Apps List
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + CUSTOM_APPS

@@ -1,3 +1,5 @@
+import importlib
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -98,5 +100,14 @@ urlpatterns = [
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-urlpatterns += [    path('frappe/', include('frappe_app.urls')),]
-urlpatterns += [    path('shop/', include('shop_app.urls')),]
+try:
+    importlib.import_module("frappe_app.urls")
+    urlpatterns += [path("frappe/", include("frappe_app.urls"))]
+except ModuleNotFoundError:
+    pass
+
+try:
+    importlib.import_module("shop_app.urls")
+    urlpatterns += [path("shop/", include("shop_app.urls"))]
+except ModuleNotFoundError:
+    pass

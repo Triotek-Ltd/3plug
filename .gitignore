@@ -18,7 +18,13 @@ build/
 
 # Miscellaneous
 .DS_Store
+Thumbs.db
 *.pem
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
 
 # Debug logs
 npm-debug.log*
@@ -33,6 +39,11 @@ yarn-error.log*
 
 # Vercel
 .vercel/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.code-workspace
 
 # TypeScript
 *.tsbuildinfo

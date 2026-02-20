@@ -8,6 +8,7 @@ from typing import Optional
 import click
 
 from ...utils.config import DEFAULT_SITE, DJANGO_PATH, PROJECT_ROOT, find_django_path, get_all_sites, get_site_config
+from ...utils.run_process import get_python_executable
 from ..utils.app_database_utils import create_entries_from_config
 from ..utils.configure_app import configure_app, configure_doc, configure_module
 from .migrate_app import migrate_app
@@ -118,24 +119,6 @@ def updatefiles(
     click.echo("Migration process completed successfully.")
 
 
-def get_python_executable() -> str:
-    """Get the path to the Python executable in the virtual environment.
-
-    Returns:
-        str: Path to the Python executable.
-    """
-    venv_path = os.path.join(PROJECT_ROOT, "env")
-    if not os.path.exists(venv_path):
-        click.echo("Virtual environment not found. Please run '3plug setup' first.")
-        raise FileNotFoundError("Virtual environment not found.")
-
-    python_executable = os.path.join(venv_path, "bin", "python")
-    if sys.platform.startswith("win"):
-        python_executable = os.path.join(venv_path, "Scripts", "python.exe")
-
-    return python_executable
-
-
 @click.command()
 @click.option(
     "--site",
@@ -158,6 +141,8 @@ def run_migrate_django(site: Optional[str] = None) -> None:
         site (Optional[str]): Name of the site to migrate.
     """
     python_executable = get_python_executable()
+    if not python_executable:
+        return
 
     db_arg = [f"--database={site}"] if site else []
 

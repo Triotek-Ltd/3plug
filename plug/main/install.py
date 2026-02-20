@@ -6,6 +6,7 @@ from typing import Optional
 import click
 
 from ..utils.config import APPS_PATH, PROJECT_ROOT
+from ..utils.run_process import get_python_executable, get_venv_path
 from .init import perform_init
 
 
@@ -16,8 +17,8 @@ def activate_virtualenv() -> Optional[str]:
     Returns:
         Optional[str]: The path to the activation script, or None if the virtual environment is not found.
     """
-    venv_path = os.path.join(PROJECT_ROOT, "env")
-    if not os.path.exists(venv_path):
+    venv_path = get_venv_path()
+    if not venv_path:
         click.echo("Virtual environment not found. Please run '3plug setup' first.")
         return None
 
@@ -39,7 +40,10 @@ def app_install_python_packages(app: str) -> None:
     requirements_file = os.path.join(APPS_PATH, app, "requirements.txt")
     if os.path.exists(requirements_file):
         click.echo(f"Installing packages from {requirements_file}...")
-        subprocess.check_call(["pip", "install", "-r", requirements_file])
+        python_executable = get_python_executable()
+        if not python_executable:
+            return
+        subprocess.check_call([python_executable, "-m", "pip", "install", "-r", requirements_file])
 
 
 def install_python_packages() -> None:
@@ -49,7 +53,10 @@ def install_python_packages() -> None:
     site_requirements = os.path.join(PROJECT_ROOT, "manifold", "requirements.txt")
     if os.path.exists(site_requirements):
         click.echo(f"Installing packages from {site_requirements}...")
-        subprocess.check_call(["pip", "install", "-r", site_requirements])
+        python_executable = get_python_executable()
+        if not python_executable:
+            return
+        subprocess.check_call([python_executable, "-m", "pip", "install", "-r", site_requirements])
 
 
 def app_install_npm_packages(app: str) -> None:
