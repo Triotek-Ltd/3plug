@@ -36,6 +36,8 @@ def cli(ctx: click.Context) -> None:
 cli.add_command(newapp, name="new-app")
 cli.add_command(dropapp, name="drop-app")
 cli.add_command(getapp, name="get-app")
+cli.add_command(list_plugs, name="list-plugs")
+cli.add_command(set_plugs, name="set-plugs")
 
 cli.add_command(newmodule, name="new-module")
 cli.add_command(dropmodule, name="drop-module")

@@ -1,6 +1,11 @@
 from typing import List, Optional, Tuple
 
-from ...utils.config import APPS_TXT_PATH, find_module_base_path
+from ...utils.config import (
+    find_module_base_path,
+    get_plug_apps,
+    get_registered_plugs,
+    remove_plug_app,
+)
 from .load_doc_config import load_existing_data
 
 
@@ -11,19 +16,12 @@ def update_apps_txt(app_name: str, remove: bool = False) -> None:
         app_name (str): Name of the app to add or remove from apps.txt.
         remove (bool): Set to True to remove the app from apps.txt. Defaults to False.
     """
-    with open(APPS_TXT_PATH, "r") as apps_file:
-        apps = [
-            app.strip()
-            for app in apps_file.readlines()
-            if not app.strip().startswith("#")
-        ]
+    if not remove:
+        return
 
-    if remove and app_name in apps:
-        apps.remove(app_name)
-
-    with open(APPS_TXT_PATH, "w") as apps_file:
-        for app in apps:
-            apps_file.write(f"{app}\n")
+    for plug_name in get_registered_plugs():
+        if app_name in get_plug_apps(plug_name):
+            remove_plug_app(plug_name, app_name)
 
 
 def find_modules(app_name: str) -> Optional[List[str]]:

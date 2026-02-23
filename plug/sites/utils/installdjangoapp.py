@@ -1,25 +1,8 @@
-import json
 import os
 import subprocess
 import sys
-from typing import List
 
 from .module_structure import create_module_structure  # Importing the logic
-
-
-def activate_virtualenv(project_root: str) -> str:
-    """
-    Return the path to the activate script of the virtual environment.
-
-    Args:
-        project_root (str): The root directory of the project.
-
-    Returns:
-        str: The path to the activate script.
-    """
-    if sys.platform.startswith("win"):
-        return os.path.join(project_root, "env", "Scripts", "activate")
-    return os.path.join(project_root, "env", "bin", "activate")
 
 
 def get_python_executable(project_root: str) -> str:
@@ -32,13 +15,23 @@ def get_python_executable(project_root: str) -> str:
     Returns:
         str: The path to the Python executable.
     """
-    venv_path = os.path.join(project_root, "env")
-    if sys.platform.startswith("win"):
-        return os.path.join(venv_path, "Scripts", "python.exe")
-    return os.path.join(venv_path, "bin", "python")
+    venv_candidates = [
+        os.path.join(project_root, "env"),
+        os.path.join(project_root, ".venv"),
+    ]
+    for venv_path in venv_candidates:
+        if sys.platform.startswith("win"):
+            candidate = os.path.join(venv_path, "Scripts", "python.exe")
+        else:
+            candidate = os.path.join(venv_path, "bin", "python")
+        if os.path.exists(candidate):
+            return candidate
+    raise FileNotFoundError(
+        "Python executable not found in env/.venv. Run `3plug setup` first."
+    )
 
 
-def install_django_app(app: str, project_root: str) -> None:
+def install_django_app(app: str, project_root: str, app_root_path: str = "") -> None:
     """
     Create a Django app in a selected site using the Django startapp command.
 
@@ -54,15 +47,6 @@ def install_django_app(app: str, project_root: str) -> None:
     # Define paths
     django_path = os.path.join(project_root, "manifold")
 
-    # Load app options from apps.txt
-    apps_txt_path = os.path.join(project_root, "config", "apps.txt")
-    with open(apps_txt_path, "r") as apps_file:
-        apps: List[str] = [
-            line.strip()
-            for line in apps_file
-            if line.strip() and not line.startswith("#")
-        ]
-
     # Determine Python executable
     python_executable = get_python_executable(project_root)
 
@@ -76,21 +60,25 @@ def install_django_app(app: str, project_root: str) -> None:
         with open(settings_path, "r") as file:
             settings_content = file.readlines()
 
-        installed_apps_index = None
-        for i, line in enumerate(settings_content):
-            if "CUSTOM_APPS = [" in line:
-                installed_apps_index = i
-                break
-
-        if installed_apps_index is not None:
-            end_index = installed_apps_index
-            while not settings_content[end_index].strip().endswith("]"):
-                end_index += 1
-            settings_content.insert(end_index, f"    '{app_name}',\n")
-
-        path_append_line = (
-            f'\nsys.path.append(str(os.path.join(PROJECT_PATH, "apps", "{app}")))\n'
+        custom_app_append = (
+            f'if os.path.isdir(os.path.join(BASE_DIR, "{app_name}")):\n'
+            f'    CUSTOM_APPS.append("{app_name}")\n'
         )
+        if custom_app_append not in "".join(settings_content):
+            final_installed_index = None
+            for i, line in enumerate(settings_content):
+                if line.strip().startswith("INSTALLED_APPS ="):
+                    final_installed_index = i
+                    break
+            if final_installed_index is None:
+                raise ValueError("Could not find INSTALLED_APPS assignment in settings.py")
+            settings_content.insert(final_installed_index, custom_app_append)
+
+        custom_app_path = app_root_path or os.path.join(project_root, "apps", app)
+        relative_custom_path = os.path.relpath(custom_app_path, project_root)
+        path_parts = [part for part in relative_custom_path.replace("\\", "/").split("/") if part]
+        path_parts_expr = ", ".join([f'"{part}"' for part in path_parts])
+        path_append_line = f'\nsys.path.append(str(os.path.join(PROJECT_PATH, {path_parts_expr})))\n'
         if path_append_line not in settings_content:
             settings_content.append(f"\n{path_append_line}")
 
@@ -99,7 +87,6 @@ def install_django_app(app: str, project_root: str) -> None:
 
         # Create urls.py for the new app
         app_path = os.path.join(django_path, app_name)
-        custom_app_path = os.path.join(project_root, "apps", app)
         urls_path = os.path.join(app_path, "urls.py")
         with open(urls_path, "w") as urls_file:
             urls_file.write("from django.urls import path\n\n")

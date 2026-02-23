@@ -37,6 +37,7 @@ import { useRouter } from "next/router";
 import sidebarConfig from "@/data/sidebar.json"; // Import sidebar.json for sidebar settings
 import Link from "next/link";
 import { fetchData } from "@/utils/Api";
+import { useData } from "@/contexts/DataContext";
 
 const Sidebar = () => {
   const { sidebarWidth, setSidebarWidth, sidebarHidden } = useSidebar();
@@ -45,6 +46,10 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [sidebarLinks, setSidebarLinks] = useState([]);
   const router = useRouter();
+  const { websiteSettings } = useData();
+  const companyName =
+    websiteSettings?.site_title || websiteSettings?.app_name || "3plug";
+  const companyLogo = websiteSettings?.app_logo || "/brand/logo-3plug.png";
 
   useEffect(() => {
     const handleResize = () => {
@@ -122,34 +127,35 @@ const Sidebar = () => {
             !isCollapsed ? "fixed md:relative" : "hidden"
           }`}
         >
-          <div className="h-fit flex items-center justify-between px-4">
+          <div className="h-fit flex items-center justify-start gap-2 px-3">
+            <Link
+              href={`/${pageInfo?.link}` || "/"}
+              className="block py-2 m-0 text-sm text-slate-700"
+            >
+              <div className="flex flex-col items-start gap-1 transition-all duration-200 ease-nav-brand">
+                <img
+                  src={companyLogo}
+                  alt="Company Logo"
+                  className="h-[150px] w-auto max-w-[180px] object-contain object-left"
+                />
+                <span className="font-semibold text-sm text-left">
+                  {companyName}
+                </span>
+              </div>
+            </Link>
             <button
               onClick={toggleSidebar}
-              className="group text-sm md:text-xl flex py-2" // Use group class for managing hover effect
+              className="group text-sm md:text-xl flex py-2 px-1"
             >
-              {/* Default icon (faBars) */}
               <FontAwesomeIcon
                 icon={faBars}
-                className="transition-all duration-300 ease-in-out group-hover:hidden" // Hide on hover
+                className="transition-all duration-300 ease-in-out group-hover:hidden"
               />
-              {/* Hover icon (faAngleDoubleRight) */}
               <FontAwesomeIcon
                 icon={faAngleDoubleRight}
-                className="transition-all duration-300 ease-in-out hidden group-hover:block" // Show on hover
+                className="transition-all duration-300 ease-in-out hidden group-hover:block"
               />
             </button>
-            <a
-              className="block py-2 m-0 text-sm flex flex-col whitespace-nowrap justify-center items-center text-slate-700"
-              target="_blank"
-              rel="noreferrer"
-              href="/"
-            >
-              <Link href={`/${pageInfo?.link}` || "/"}>
-                <span className="ml-4 mr-2 font-semibold text-xl transition-all duration-200 ease-nav-brand">
-                  {pageInfo?.text || "Home"}
-                </span>
-              </Link>
-            </a>
           </div>
 
           <hr className="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent" />

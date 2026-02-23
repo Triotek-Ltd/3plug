@@ -5,7 +5,12 @@ from typing import List, Optional
 import click
 
 from ..sites.migrate.migrate import run_migration
-from ..utils.config import DEFAULT_SITE, DJANGO_PATH, PROJECT_ROOT
+from ..utils.config import (
+    DEFAULT_SITE,
+    DJANGO_PATH,
+    get_app_module_path,
+    get_registered_apps,
+)
 
 
 @click.command()
@@ -28,14 +33,8 @@ def installmodule(
     if not site:
         site = DEFAULT_SITE
         
-    # Load available apps from apps.txt
-    apps_txt_path: str = os.path.join(PROJECT_ROOT, "config", "apps.txt")
-    with open(apps_txt_path, "r") as apps_file:
-        apps: List[str] = [
-            line.strip()
-            for line in apps_file
-            if line.strip() and not line.startswith("#")
-        ]
+    # Load available apps from plug-level apps.txt registries.
+    apps: List[str] = get_registered_apps()
 
     # Prompt for app if not provided
     if not app:
@@ -54,7 +53,10 @@ def installmodule(
     app_name: str = f"{app}_app"
 
     # Load available modules from modules.txt
-    custom_app_path: str = os.path.join(PROJECT_ROOT, "apps", app)
+    custom_app_path = get_app_module_path(app)
+    if not custom_app_path:
+        click.echo(f"App path not found for '{app}'.")
+        return
     module_txt_path: str = os.path.join(custom_app_path, "modules.txt")
     if not os.path.exists(module_txt_path):
         click.echo(f"modules.txt not found in {custom_app_path}.")

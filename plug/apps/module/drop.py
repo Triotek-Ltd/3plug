@@ -7,7 +7,8 @@ from typing import List
 import click
 
 from ...sites.migrate.migrate import run_migration
-from ...utils.config import PROJECT_ROOT
+from ...utils.config import get_app_module_path
+from ...utils.text import to_snake_case
 
 
 @click.command()
@@ -21,15 +22,17 @@ def dropmodule(app_name: str, module_name: str) -> None:
         app_name (str): The name of the Django app.
         module_name (str): The name of the module to be deleted.
     """
+    app_name = to_snake_case(app_name)
+    module_name = to_snake_case(module_name)
+
     # Path to the app's module directory
-    app_path = os.path.join(PROJECT_ROOT, "apps", app_name)
+    app_path = get_app_module_path(app_name)
+    if not app_path:
+        click.echo(f"The app '{app_name}' does not exist.")
+        return
     module_path = os.path.join(app_path, module_name)
 
     # Check if the app folder exists
-    if not os.path.exists(app_path):
-        click.echo(f"The app '{app_name}' does not exist.")
-        return
-
     # Check if the module folder exists
     if not os.path.exists(module_path):
         click.echo(f"The module '{module_name}' does not exist in '{app_name}'.")

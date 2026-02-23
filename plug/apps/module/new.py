@@ -8,7 +8,7 @@ from typing import List
 import click
 
 from ...sites.migrate.migrate import run_migration
-from ...utils.config import PROJECT_ROOT
+from ...utils.config import get_app_module_path
 from ...utils.text import to_snake_case
 
 
@@ -24,12 +24,13 @@ def newmodule(app_name: str, module: str) -> None:
         module (str): The name of the new module to create.
     """
     module_name = to_snake_case(module)
-    app_path: str = os.path.join(PROJECT_ROOT, "apps", app_name, app_name)
-    final_module_path: str = os.path.join(app_path, module_name)
+    app_name = to_snake_case(app_name)
+    app_path = get_app_module_path(app_name)
 
-    if not os.path.exists(app_path):
+    if not app_path or not os.path.exists(app_path):
         click.echo(f"The app '{app_name}' does not exist.")
         return
+    final_module_path: str = os.path.join(app_path, module_name)
 
     if os.path.exists(final_module_path):
         click.echo(f"The module '{module}' already exists in '{app_name}'.")
