@@ -13,7 +13,16 @@ from ...utils.text import to_snake_case
 @click.argument("doc_name")
 @click.option("--app", type=str, help="Select the app by number or name.")
 @click.option("--module", type=str, help="Select the module by number or name.")
-def dropdoc(doc_name: str, app: Optional[str], module: Optional[str]) -> None:
+@click.option(
+    "--submodule",
+    "submodule_name",
+    type=str,
+    default=None,
+    help="Optional submodule name/number (3plug hierarchy).",
+)
+def dropdoc(
+    doc_name: str, app: Optional[str], module: Optional[str], submodule_name: Optional[str]
+) -> None:
     """
     Delete the specified document folder from the module and remove it from the document list.
 
@@ -26,6 +35,7 @@ def dropdoc(doc_name: str, app: Optional[str], module: Optional[str]) -> None:
     doc_name = to_snake_case(doc_name)
     app = to_snake_case(app) if app else None
     module = to_snake_case(module) if module else None
+    submodule_name = to_snake_case(submodule_name) if submodule_name else None
 
     # Load available apps
     apps: List[str] = [to_snake_case(app_name) for app_name in get_registered_apps()]
@@ -64,15 +74,36 @@ def dropdoc(doc_name: str, app: Optional[str], module: Optional[str]) -> None:
         click.echo("Invalid module selection.")
         return
 
-    # Path to the doc folder
-    doc_path = os.path.join(module_base_path, selected_module, "doctype", doc_name)
+    module_path = os.path.join(module_base_path, selected_module)
+
+    # Path to the doc folder (prefer 3plug hierarchy if submodule is provided/found)
+    doc_path = None
+    if submodule_name:
+        candidate = os.path.join(
+            module_path, "submodule", submodule_name, "docs", doc_name
+        )
+        if os.path.exists(candidate):
+            doc_path = candidate
+    if doc_path is None:
+        candidate = os.path.join(module_path, "doc", doc_name)
+        if os.path.exists(candidate):
+            doc_path = candidate
+
+    # Always remove legacy bridge folder if present
+    legacy_doc_path = os.path.join(module_path, "doctype", doc_name)
 
     # Check if the doc folder exists
-    if not os.path.exists(doc_path):
+    if doc_path is None and not os.path.exists(legacy_doc_path):
+        click.echo(f"Doc '{doc_name}' not found.")
         return
 
-    # Remove the doc directory
-    shutil.rmtree(doc_path)
+    # Remove the doc directory/directories
+    if doc_path and os.path.exists(doc_path):
+        shutil.rmtree(doc_path)
+    if os.path.exists(legacy_doc_path):
+        shutil.rmtree(legacy_doc_path)
+
+    _remove_doc_from_indexes(module_path, doc_name, submodule_name)
     run_migration(app=selected_app, module=selected_module)
 
 
@@ -136,3 +167,35 @@ def determine_module_selection(
             )
     else:
         return module if module in modules else None
+
+
+def _remove_doc_from_indexes(
+    module_path: str, doc_name: str, submodule_name: Optional[str]
+) -> None:
+    docs_txt = os.path.join(module_path, "docs.txt")
+    if os.path.exists(docs_txt):
+        with open(docs_txt, "r", encoding="utf-8") as f:
+            entries = [line.strip() for line in f if line.strip()]
+        filtered = []
+        for entry in entries:
+            if entry == doc_name:
+                continue
+            if submodule_name and entry == f"{submodule_name}/{doc_name}":
+                continue
+            if entry.endswith(f"/{doc_name}"):
+                # remove any stale submodule entry if doc was targeted by name
+                continue
+            filtered.append(entry)
+        with open(docs_txt, "w", encoding="utf-8") as f:
+            if filtered:
+                f.write("\n".join(filtered) + "\n")
+
+    if submodule_name:
+        sub_docs_txt = os.path.join(module_path, "submodule", submodule_name, "docs.txt")
+        if os.path.exists(sub_docs_txt):
+            with open(sub_docs_txt, "r", encoding="utf-8") as f:
+                entries = [line.strip() for line in f if line.strip()]
+            entries = [entry for entry in entries if entry != doc_name]
+            with open(sub_docs_txt, "w", encoding="utf-8") as f:
+                if entries:
+                    f.write("\n".join(entries) + "\n")

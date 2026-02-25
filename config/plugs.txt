@@ -1,4 +1,4 @@
-operations
-management
-administration
+ops
+mgt
+adm
 integrations

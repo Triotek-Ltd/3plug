@@ -1,38 +1,18 @@
-import { useNavbar } from "@/contexts/NavbarContext";
-import { Inter } from "next/font/google";
-import { useEffect } from "react";
-import { useSidebar } from "@/contexts/SidebarContext";
-import ModuleDashboard from "@/components/workspace/ModuleDashboard";
-import { useRouter } from "next/router";
-import Dashboard from "@/components/workspace/Dashboard";
+﻿import Head from "next/head";
 
-const inter = Inter({ subsets: ["latin"] });
+import LandingPage from "../components/website/landing/LandingPage";
 
-export default function ModuleIndex() {
-  const { updateDashboardText, updatePagesText, updateTextColor } = useNavbar();
-  const { setSidebarHidden } = useSidebar();
-  const router = useRouter();
-
-  useEffect(() => {
-    // Extract app and module names from the router path
-    const currentPath = router.asPath.split("/").filter(Boolean);
-    const modulename = currentPath.pop(); // Get the last segment as modulename
-    const appname = currentPath.pop(); // Get the second last segment as appname
-
-    if (appname && modulename) {
-      // Update titles based on the app and module names
-      updatePagesText(`${appname.charAt(0).toUpperCase() + appname.slice(1)}`);
-      updateDashboardText(
-        `${modulename.charAt(0).toUpperCase() + modulename.slice(1)}`
-      );
-      updateTextColor("text-gray-900");
-      setSidebarHidden(false);
-    }
-  }, [router.asPath]); // Re-run the effect when router.asPath changes
-
+export default function PublicLandingPage() {
   return (
     <>
-      <Dashboard />
+      <Head>
+        <title>3plug Platform | Modular Business Apps for Operations, Management & Administration</title>
+        <meta
+          name="description"
+          content="3plug is a modular platform for business operations, management, and administration with selective app bundles, industry packs, and cloud or local deployment options."
+        />
+      </Head>
+      <LandingPage />
     </>
   );
 }

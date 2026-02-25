@@ -19,6 +19,16 @@ import DynamicHead from "@/components/core/common/DynamicHead";
 
 Modal.setAppElement("#__next");
 
+const PUBLIC_ROUTES = new Set([
+  "/",
+  "/platform",
+  "/solutions",
+  "/deployments/cloud",
+  "/deployments/local",
+  "/apps",
+  "/publishers",
+]);
+
 export default function App({ Component, pageProps }) {
   const [isClient, setIsClient] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,9 +52,11 @@ export default function App({ Component, pageProps }) {
         setIsAuthenticated(false);
 
         const isApiRoute = router.pathname.startsWith("/apis");
+        const isPublicRoute = PUBLIC_ROUTES.has(router.pathname);
 
         if (
           !isApiRoute &&
+          !isPublicRoute &&
           router.pathname !== "/login" &&
           router.pathname !== "/signup" &&
           router.pathname !== "/admin"
@@ -64,12 +76,20 @@ export default function App({ Component, pageProps }) {
 
   const isAuthPage =
     router.pathname === "/login" || router.pathname === "/signup";
+  const isPublicPage = PUBLIC_ROUTES.has(router.pathname);
+  const useAppShell = !isAuthPage && !isPublicPage;
 
   return (
     <>
       <AppProviders>
         <DynamicHead />
-        <div className="m-0 font-sans text-base antialiased font-normal font-lato leading-8 leading-default bg-brand-surface text-slate-700 max-h-screen w-full flex items-center justify-center">
+        <div
+          className={`m-0 font-sans text-base antialiased font-normal font-lato leading-8 leading-default text-slate-700 w-full ${
+            isPublicPage
+              ? "bg-white min-h-screen"
+              : "bg-brand-surface max-h-screen flex items-center justify-center"
+          }`}
+        >
           <ToastContainer
             theme="colored"
             position="bottom-right"
@@ -77,7 +97,7 @@ export default function App({ Component, pageProps }) {
             toastClassName="brand-toast"
           />
           {/* Fixed Navbar */}
-          {!isAuthPage && (
+          {useAppShell && (
             <div className="fixed top-0 left-0 right-0 z-50 bg-gray-50">
               <div className="flex items-center justify-center">
                 <Navbar />
@@ -87,10 +107,19 @@ export default function App({ Component, pageProps }) {
           )}
 
           {/* Main Content Area with Padding to Avoid Overlap */}
-          <main className="relative flex flex-col w-full items-center justify-center h-screen">
+          <main
+            className={`relative w-full ${
+              isPublicPage
+                ? "min-h-screen"
+                : "flex flex-col items-center justify-center h-screen"
+            }`}
+          >
+            {isPublicPage ? (
+              <Component {...pageProps} />
+            ) : (
             <div
               className={`ease-soft-in-out max-h-screen ${
-                !isAuthPage ? "pt-1 md:pt-14 h-[100vh]" : ""
+                useAppShell ? "pt-1 md:pt-14 h-[100vh]" : ""
               } flex flex-row relative items-center justify-center rounded-xl transition-all duration-200 w-full max-w-[1536px]`}
             >
               {isAuthPage ? (
@@ -115,6 +144,7 @@ export default function App({ Component, pageProps }) {
                 </>
               )}{" "}
             </div>
+            )}
           </main>
           <Loader />
           <ContextConfirmationModal />

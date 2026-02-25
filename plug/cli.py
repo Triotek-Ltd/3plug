@@ -38,12 +38,23 @@ cli.add_command(dropapp, name="drop-app")
 cli.add_command(getapp, name="get-app")
 cli.add_command(list_plugs, name="list-plugs")
 cli.add_command(set_plugs, name="set-plugs")
+cli.add_command(list_bundles, name="list-bundles")
+cli.add_command(set_bundles, name="set-bundles")
+cli.add_command(new_bundle, name="new-bundle")
+cli.add_command(drop_bundle, name="drop-bundle")
+cli.add_command(new_bundle, name="new-plug")   # compatibility alias
+cli.add_command(drop_bundle, name="drop-plug") # compatibility alias
 
 cli.add_command(newmodule, name="new-module")
 cli.add_command(dropmodule, name="drop-module")
+cli.add_command(newsubmodule, name="new-submodule")
+cli.add_command(dropsubmodule, name="drop-submodule")
 
 cli.add_command(newdoc, name="new-doc")
 cli.add_command(dropdoc, name="drop-doc")
+# Compatibility aliases while migrating terminology
+cli.add_command(newdoc, name="new-doctype")
+cli.add_command(dropdoc, name="drop-doctype")
 cli.add_command(movedoc, name="move-doc")
 
 cli.add_command(newprintformat, name="new-print-format")

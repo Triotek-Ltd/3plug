@@ -55,6 +55,10 @@ next-env.d.ts
 # Project-specific files
 /sites
 /apps
+# Local bundle/app repos are managed in their own repositories, not the main repo
+/bundles/**
+!/bundles/
+!/bundles/.gitkeep
 # Python-related
 /3plug.egg-info
 **/__pycache__/

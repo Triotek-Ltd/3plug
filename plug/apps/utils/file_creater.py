@@ -200,17 +200,20 @@ def create_files_from_templates(
     templates_folder: str,
     license_type: str,
     dynamic_content: Optional[Dict[str, str]] = None,
+    *,
+    direct_layout: bool = False,
 ) -> None:
     """Create necessary files for the app by loading content from templates."""
 
+    app_root = base_path if direct_layout else os.path.join(base_path, app_name)
     file_mappings = {
         "MANIFEST.in": os.path.join(base_path, "MANIFEST.in"),
         ".gitignore": os.path.join(base_path, ".gitignore"),
-        "setup.py": os.path.join(base_path, app_name, "setup.py"),
-        "hooks.py": os.path.join(base_path, app_name, "hooks.py"),
-        "modules.txt": os.path.join(base_path, app_name, "modules.txt"),
-        "patches.txt": os.path.join(base_path, app_name, "patches.txt"),
-        "__init__.py": os.path.join(base_path, app_name, "__init__.py"),
+        "setup.py": os.path.join(app_root, "setup.py"),
+        "hooks.py": os.path.join(app_root, "hooks.py"),
+        "modules.txt": os.path.join(app_root, "modules.txt"),
+        "patches.txt": os.path.join(app_root, "patches.txt"),
+        "__init__.py": os.path.join(app_root, "__init__.py"),
         "tox.ini": os.path.join(base_path, "tox.ini"),
         ".flake8": os.path.join(base_path, ".flake8"),
         ".editorconfig": os.path.join(base_path, ".editorconfig"),

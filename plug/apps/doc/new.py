@@ -13,9 +13,21 @@ from .file_handler import create_files
 @click.argument("doc_name")
 @click.option("--app", type=str, help="Select the app by number or name.")
 @click.option("--module", type=str, help="Select the module by number or name.")
-def newdoc(doc_name: str, app: Optional[str], module: Optional[str]) -> None:
+@click.option(
+    "--submodule",
+    "submodule_name",
+    type=str,
+    default=None,
+    help="Optional submodule name/number (3plug hierarchy).",
+)
+def newdoc(
+    doc_name: str,
+    app: Optional[str],
+    module: Optional[str],
+    submodule_name: Optional[str],
+) -> None:
     """
-    Create a new doctype folder with default files in the specified module.
+    Create a new 3plug doc scaffold (with legacy doctype bridge files) in a module/submodule.
 
     Args:
         doc_name (str): The name of the document.
@@ -26,6 +38,7 @@ def newdoc(doc_name: str, app: Optional[str], module: Optional[str]) -> None:
     doc_id: str = to_snake_case(doc_name)
     app = to_snake_case(app) if app else None
     module_id = to_snake_case(module) if module else None
+    submodule_id_input = to_snake_case(submodule_name) if submodule_name else None
 
     # Load available apps
     apps: List[str] = [to_snake_case(app_name) for app_name in get_registered_apps()]
@@ -64,10 +77,27 @@ def newdoc(doc_name: str, app: Optional[str], module: Optional[str]) -> None:
         click.echo("Invalid module selection.")
         return
 
-    # Define paths
     module_path: str = os.path.join(module_base_path, selected_module)
-    create_files(module_path, doc_name, doc_id, module)
-    run_migration(app=app, module=module, doc=doc_name)
+    # Determine optional submodule selection (3plug hierarchy)
+    submodule_id = determine_submodule_selection(
+        module_path=module_path,
+        submodule_id=submodule_id_input,
+    )
+    if submodule_id_input and submodule_id is None:
+        click.echo("Invalid submodule selection.")
+        return
+
+    created_path = create_files(
+        module_path,
+        doc_name,
+        doc_id,
+        selected_module,
+        app_name=selected_app,
+        submodule_id=submodule_id,
+    )
+    register_doc_indexes(module_path, doc_id, submodule_id=submodule_id)
+    click.echo(f"Created doc scaffold at: {created_path}")
+    run_migration(app=selected_app, module=selected_module, doc=doc_name)
 
 
 def determine_app_selection(app: Optional[str], apps: List[str]) -> Optional[str]:
@@ -130,3 +160,62 @@ def determine_module_selection(
             )
     else:
         return module_id if module_id in modules else None
+
+
+def determine_submodule_selection(
+    module_path: str, submodule_id: Optional[str] = None
+) -> Optional[str]:
+    submodules_txt = os.path.join(module_path, "submodules.txt")
+    if not os.path.exists(submodules_txt):
+        return None
+
+    with open(submodules_txt, "r", encoding="utf-8") as f:
+        submodules = [
+            to_snake_case(line.strip())
+            for line in f
+            if line.strip() and not line.strip().startswith("#")
+        ]
+    if not submodules:
+        return None
+
+    if submodule_id is not None:
+        return submodule_id if submodule_id in submodules else None
+
+    click.echo("Select a submodule (optional, press Enter to skip):")
+    for i, submodule_name in enumerate(submodules):
+        click.echo(f"{i + 1}: {submodule_name}")
+    choice = click.prompt(
+        "Enter submodule number/name or leave blank", type=str, default="", show_default=False
+    )
+    if not choice:
+        return None
+    if choice.isdigit():
+        idx = int(choice) - 1
+        return submodules[idx] if 0 <= idx < len(submodules) else None
+    value = to_snake_case(choice)
+    return value if value in submodules else None
+
+
+def register_doc_indexes(module_path: str, doc_id: str, submodule_id: Optional[str] = None) -> None:
+    docs_txt = os.path.join(module_path, "docs.txt")
+    existing: List[str] = []
+    if os.path.exists(docs_txt):
+        with open(docs_txt, "r", encoding="utf-8") as f:
+            existing = [line.strip() for line in f if line.strip()]
+    entry = f"{submodule_id}/{doc_id}" if submodule_id else doc_id
+    if entry not in existing:
+        existing.append(entry)
+        with open(docs_txt, "w", encoding="utf-8") as f:
+            f.write("\n".join(existing) + "\n")
+
+    if submodule_id:
+        sub_docs_txt = os.path.join(module_path, "submodule", submodule_id, "docs.txt")
+        if os.path.exists(sub_docs_txt):
+            with open(sub_docs_txt, "r", encoding="utf-8") as f:
+                sub_existing = [line.strip() for line in f if line.strip()]
+        else:
+            sub_existing = []
+        if doc_id not in sub_existing:
+            sub_existing.append(doc_id)
+            with open(sub_docs_txt, "w", encoding="utf-8") as f:
+                f.write("\n".join(sub_existing) + "\n")

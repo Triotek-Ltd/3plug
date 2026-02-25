@@ -14,6 +14,8 @@ def find_project_root(current_path: str) -> str:
 
 PROJECT_ROOT = find_project_root(os.getcwd())
 PLUGS_TXT_PATH = os.path.join(PROJECT_ROOT, "config", "plugs.txt")
+BUNDLES_ROOT = os.path.join(PROJECT_ROOT, "bundles")
+PLATFORM_ROOT = os.path.join(PROJECT_ROOT, "plug-platform")
 # SITES_JSON_PATH = os.path.join(PROJECT_ROOT, "sites", "sites.json")
 DOCS_JSON_PATH = os.path.join(PROJECT_ROOT, "sites", "doctypes.json")
 PRINT_JSON_PATH = os.path.join(PROJECT_ROOT, "sites", "print_formats.json")
@@ -33,10 +35,29 @@ SYSTEM_DIRS = {
     "manifold",
     "node_modules",
     "plug",
+    "platform",  # legacy/transition name
+    "plug-platform",
+    "bundles",
     "public",
     "sites",
     "src",
 }
+
+LEGACY_PLUG_ALIASES = {
+    "operations": "ops",
+    "management": "mgt",
+    "administration": "adm",
+}
+
+
+def normalize_plug_name(plug_name: str) -> str:
+    clean = plug_name.strip()
+    return LEGACY_PLUG_ALIASES.get(clean, clean)
+
+
+def get_plug_directory_path(plug_name: str) -> str:
+    normalized = normalize_plug_name(plug_name)
+    return os.path.join(BUNDLES_ROOT, normalized)
 
 
 def _read_non_comment_lines(file_path: str) -> List[str]:
@@ -79,10 +100,25 @@ def get_registered_apps() -> List[str]:
 
 
 def get_registered_plugs() -> List[str]:
-    # If plugs.txt is missing/empty, discover top-level directories excluding framework internals.
-    plugs = _read_non_comment_lines(PLUGS_TXT_PATH)
+    # If plugs.txt is missing/empty, discover bundle directories first, then fallback to legacy discovery.
+    plugs = [normalize_plug_name(line) for line in _read_non_comment_lines(PLUGS_TXT_PATH)]
     if plugs:
-        return plugs
+        deduped: List[str] = []
+        for plug in plugs:
+            if plug and plug not in deduped:
+                deduped.append(plug)
+        return deduped
+
+    if os.path.isdir(BUNDLES_ROOT):
+        discovered_bundles = sorted(
+            [
+                entry
+                for entry in os.listdir(BUNDLES_ROOT)
+                if os.path.isdir(os.path.join(BUNDLES_ROOT, entry)) and not entry.startswith(".")
+            ]
+        )
+        if discovered_bundles:
+            return discovered_bundles
 
     discovered: List[str] = []
     for entry in os.listdir(PROJECT_ROOT):
@@ -97,7 +133,7 @@ def get_registered_plugs() -> List[str]:
 
 
 def ensure_plug_directory(plug_name: str) -> str:
-    plug_path = os.path.join(PROJECT_ROOT, plug_name)
+    plug_path = get_plug_directory_path(plug_name)
     if not os.path.isdir(plug_path):
         raise FileNotFoundError(
             f"Plug '{plug_name}' does not exist. Select one from config/plugs.txt options."
@@ -107,7 +143,7 @@ def ensure_plug_directory(plug_name: str) -> str:
 
 
 def get_plug_apps_txt_path(plug_name: str) -> str:
-    return os.path.join(PROJECT_ROOT, plug_name, "apps.txt")
+    return os.path.join(get_plug_directory_path(plug_name), "apps.txt")
 
 
 def get_plug_apps(plug_name: str) -> List[str]:
@@ -131,7 +167,7 @@ def remove_plug_app(plug_name: str, app_name: str) -> None:
 
 
 def ensure_plug_scaffold(plug_name: str) -> None:
-    plug_path = os.path.join(PROJECT_ROOT, plug_name)
+    plug_path = get_plug_directory_path(plug_name)
     os.makedirs(plug_path, exist_ok=True)
 
     _ensure_text_file(get_plug_apps_txt_path(plug_name))
@@ -141,6 +177,22 @@ def ensure_plug_scaffold(plug_name: str) -> None:
         with open(readme_path, "w") as readme_file:
             readme_file.write(f"# {plug_name.title()} Plug\n")
 
+    bundle_meta_path = os.path.join(plug_path, "bundle.json")
+    if not os.path.exists(bundle_meta_path):
+        with open(bundle_meta_path, "w") as bundle_meta_file:
+            json.dump(
+                {
+                    "id": plug_name,
+                    "title": plug_name.upper(),
+                    "type": "bundle",
+                    "status": "draft",
+                    "apps_registry": "apps.txt",
+                },
+                bundle_meta_file,
+                indent=2,
+            )
+            bundle_meta_file.write("\n")
+
     # Base folders for plug-level documentation and translation assets.
     os.makedirs(os.path.join(plug_path, "docs"), exist_ok=True)
     os.makedirs(os.path.join(plug_path, "translations"), exist_ok=True)
@@ -148,14 +200,24 @@ def ensure_plug_scaffold(plug_name: str) -> None:
 
 def get_app_root_path(app_name: str, plug_name: Optional[str] = None) -> Optional[str]:
     if plug_name:
-        candidate = os.path.join(PROJECT_ROOT, plug_name, app_name)
-        return candidate if os.path.isdir(candidate) else None
+        candidates = [
+            os.path.join(get_plug_directory_path(plug_name), app_name),
+            os.path.join(PROJECT_ROOT, normalize_plug_name(plug_name), app_name),
+            os.path.join(PROJECT_ROOT, plug_name, app_name),
+        ]
+        for candidate in candidates:
+            if os.path.isdir(candidate):
+                return candidate
+        return None
 
     matches: List[str] = []
     for plug in get_registered_plugs():
-        candidate = os.path.join(PROJECT_ROOT, plug, app_name)
-        if os.path.isdir(candidate):
-            matches.append(candidate)
+        for candidate in (
+            os.path.join(get_plug_directory_path(plug), app_name),
+            os.path.join(PROJECT_ROOT, plug, app_name),
+        ):
+            if os.path.isdir(candidate) and candidate not in matches:
+                matches.append(candidate)
 
     if len(matches) == 1:
         return matches[0]
@@ -166,6 +228,10 @@ def get_app_module_path(app_name: str, plug_name: Optional[str] = None) -> Optio
     app_root = get_app_root_path(app_name, plug_name=plug_name)
     if not app_root:
         return None
+    # v1 3plug hierarchy: bundle/app/module/...
+    if os.path.isfile(os.path.join(app_root, "modules.txt")):
+        return app_root
+    # legacy bridge layout: bundle/app/app/module/...
     module_root = os.path.join(app_root, app_name)
     return module_root if os.path.isdir(module_root) else None
 
@@ -220,7 +286,10 @@ def find_module_base_path(
     """
     # Determine base module path either from provided path or by resolving app from plugs.
     if app_path:
-        base_path = os.path.join(app_path, app_name)
+        # Prefer direct app root (v1 hierarchy), fallback to legacy nested package layout.
+        direct_base = app_path if os.path.isfile(os.path.join(app_path, "modules.txt")) else None
+        nested_base = os.path.join(app_path, app_name)
+        base_path = direct_base or nested_base
     else:
         resolved_module_path = get_app_module_path(app_name)
         if not resolved_module_path:

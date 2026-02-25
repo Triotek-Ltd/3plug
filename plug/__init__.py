@@ -1,1 +1,1 @@
-from .cli import *
+"""3plug command system package."""

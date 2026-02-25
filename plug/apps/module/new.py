@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import sys
@@ -9,7 +10,7 @@ import click
 
 from ...sites.migrate.migrate import run_migration
 from ...utils.config import get_app_module_path
-from ...utils.text import to_snake_case
+from ...utils.text import to_snake_case, underscore_to_titlecase_main
 
 
 @click.command()
@@ -45,9 +46,11 @@ def newmodule(app_name: str, module: str) -> None:
         # Create __init__.py in module
         open(os.path.join(temp_module_path, "__init__.py"), "w").close()
 
-        # Subfolders to create
+        # Subfolders to create (legacy bridge + 3plug hierarchy)
         subfolders: List[str] = [
             "doctype",
+            "doc",
+            "submodule",
             "dashboard",
             "report",
             "script",
@@ -61,6 +64,41 @@ def newmodule(app_name: str, module: str) -> None:
             os.makedirs(folder_path, exist_ok=True)
             open(os.path.join(folder_path, "__init__.py"), "w").close()
 
+        # New 3plug registries for module scaffolding
+        open(os.path.join(temp_module_path, "submodules.txt"), "w").close()
+        open(os.path.join(temp_module_path, "docs.txt"), "w").close()
+
+        module_meta = {
+            "id": module_name,
+            "title": underscore_to_titlecase_main(module_name),
+            "app_id": app_name,
+            "type": "module",
+            "status": "draft",
+            "supports_submodules": True,
+        }
+        with open(
+            os.path.join(temp_module_path, "module.json"), "w", encoding="utf-8"
+        ) as module_meta_file:
+            json.dump(module_meta, module_meta_file, indent=2)
+            module_meta_file.write("\n")
+        with open(
+            os.path.join(temp_module_path, "module.schema.json"), "w", encoding="utf-8"
+        ) as module_schema_file:
+            json.dump(
+                {
+                    "id": module_name,
+                    "entity": "module",
+                    "children": {
+                        "submodules_registry": "submodules.txt",
+                        "docs_registry": "docs.txt",
+                    },
+                    "supports": ["submodule", "doc", "report", "dashboard", "print_format", "workspace"],
+                },
+                module_schema_file,
+                indent=2,
+            )
+            module_schema_file.write("\n")
+
         # Update modules.txt cleanly
         modules_txt_path: str = os.path.join(app_path, "modules.txt")
 
@@ -70,8 +108,8 @@ def newmodule(app_name: str, module: str) -> None:
         else:
             existing_modules = []
 
-        if module not in existing_modules:
-            existing_modules.append(module)
+        if module_name not in [to_snake_case(m) for m in existing_modules]:
+            existing_modules.append(module_name)
 
         with open(modules_txt_path, "w") as f:
             f.write("\n".join(existing_modules) + "\n")

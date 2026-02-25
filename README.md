@@ -66,23 +66,55 @@ If `3plug` is not on your system `PATH`, use local launchers from project root:
 .\3plug.cmd start dev
 ```
 
-## Plug-first structure
+## Bundle-First Structure (v1 Command System)
 
-3plug now uses a plug-first app layout. Apps are created inside fixed plug directories at project root.
+3plug now uses a bundle-first scaffold model for platform generation.
 
-Current plugs:
-- `operations`
-- `management`
-- `administration`
-- `integrations`
+Primary hierarchy (what commands should create):
+- `bundle`
+- `app`
+- `module`
+- `submodule`
+- `doc`
 
-Each plug contains:
-- `apps.txt` (app registry for that plug)
-- `docs/`
-- `translations/`
-- `README.md`
+Expected path shape:
 
-Global `config/apps.txt` is no longer used.
+```text
+bundles/<bundle_id>/
+  bundle.json
+  apps.txt
+  <app_id>/
+    app.json
+    modules.txt
+    config/
+      3plug.app.json
+      3plug.app.schema.json
+    backend/
+    frontend/
+    bundling/
+      release.template.yml
+    <module_id>/
+      module.json
+      module.schema.json
+      submodules.txt
+      docs.txt
+      submodule/
+        <submodule_id>/
+          submodule.json
+          submodule.schema.json
+          docs.txt
+          docs/
+            <doc_id>/
+              doc.json
+              schema.json
+              actions.json
+```
+
+Notes:
+- Legacy doctype bridge files may still be generated during transition for compatibility.
+- Runtime business actions should happen in desks/portal UI, not via scaffold commands.
+- `install-*` / `uninstall-*` remain app-focused setup operations.
+- App repos under `bundles/<bundle>/<app>` are local working clones/scaffolds and should not be committed to this main repo (they are versioned in their own repos).
 
 ## Usage
 
@@ -165,77 +197,81 @@ or
 3plug pip i --app appname  package1 package1
 ```
 
-### Command: 3plug set-plugs
-
-Set allowed plug options and scaffold plug folders.
+### Bundle commands (primary)
 
 ```bash
-3plug set-plugs operations management administration integrations
+# Env-safe (recommended in this repo)
+env\Scripts\python.exe -m plug.cli set-bundles ops mgt adm integrations
+env\Scripts\python.exe -m plug.cli list-bundles
+env\Scripts\python.exe -m plug.cli new-bundle ops
+env\Scripts\python.exe -m plug.cli drop-bundle ops
 ```
 
-### Command: 3plug list-plugs
+Compatibility aliases (temporary):
+- `set-plugs`
+- `list-plugs`
+- `new-plug`
+- `drop-plug`
 
-List available plug options.
+### App / Module / Submodule / Doc scaffold commands (v1)
 
 ```bash
-3plug list-plugs
+# create app in a bundle (repo-ready scaffold)
+env\Scripts\python.exe -m plug.cli new-app my_app --plug ops
+
+# create module directly inside the app root
+env\Scripts\python.exe -m plug.cli new-module my_app sales_ops
+
+# create submodule inside the module
+env\Scripts\python.exe -m plug.cli new-submodule my_app sales_ops intake
+
+# create doc inside module/submodule (also writes actions/schema/doc meta)
+env\Scripts\python.exe -m plug.cli new-doc --app my_app --module sales_ops --submodule intake "Lead Intake Record"
 ```
 
-### Command: 3plug new-app
-
-Create a new app in a selected plug.
+Drop flow:
 
 ```bash
-3plug new-app my_app --plug operations
+env\Scripts\python.exe -m plug.cli drop-doc --app my_app --module sales_ops --submodule intake lead_intake_record
+env\Scripts\python.exe -m plug.cli drop-submodule my_app sales_ops intake
+env\Scripts\python.exe -m plug.cli drop-module my_app sales_ops
+env\Scripts\python.exe -m plug.cli drop-app my_app --plug ops
+env\Scripts\python.exe -m plug.cli drop-bundle ops
 ```
+
+Doc compatibility aliases (temporary):
+- `new-doctype`
+- `drop-doctype`
 
 ### Command: 3plug get-app
 
-Clone an app into a selected plug.
+Clone an app into a selected bundle.
 
 ```bash
 3plug get-app https://github.com/example/repo.git my_app --plug integrations
 ```
 
-### Command: 3plug drop-app
+### Command Safety
 
-Delete an app and remove it from its plug registry.
+CLI commands are expected to run through the project virtual environment for safety and consistency.
 
-```bash
-3plug drop-app my_app --plug operations
-```
-
-### Command: 3plug new-module
-
-Create a module in an app.
+Recommended invocation in this repo:
 
 ```bash
-3plug new-module my_app my_module
+env\Scripts\python.exe -m plug.cli --help
 ```
 
-### Command: 3plug drop-module
+The CLI also re-execs into the project env automatically for normal `3plug ...` usage when available.
 
-Delete a module from an app.
+### Command Access Policy (v1)
 
-```bash
-3plug drop-module my_app my_module
-```
-
-### Command: 3plug new-doc
-
-Create a document in an app module.
-
-```bash
-3plug new-doc --app my_app --module my_module my_doc
-```
-
-### Command: 3plug drop-doc
-
-Delete a document from an app module.
-
-```bash
-3plug drop-doc --app my_app --module my_module my_doc
-```
+- Normal platform use should move to desks/portal UI and platform `update` / `upgrade` flows.
+- In the main repo, the most common CLI actions should be:
+  - `new-bundle` / `get-app` / `new-app` (for published or new app repos)
+- Deeper scaffold commands are reserved for developers/publishers:
+  - `new-module`, `new-submodule`, `new-doc`
+  - `drop-*` structure commands
+- `install-app` / `uninstall-app` remain platform setup operations (app installation only).
 
 ## Development
 
