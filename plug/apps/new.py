@@ -148,7 +148,25 @@ def newapp(
     # Define app-level folders (v1 direct app root hierarchy)
     app_folders = [
         "backend",
+        "backend/models",
+        "backend/migrations",
+        "backend/api",
+        "backend/registry",
+        "backend/schemas",
+        "backend/actions",
+        "backend/services",
+        "backend/queries",
+        "backend/filters",
+        "backend/adapters",
+        "backend/adapters/harmonic",
         "frontend",
+        "frontend/components",
+        "frontend/routes",
+        "frontend/screens",
+        "frontend/hooks",
+        "frontend/registry",
+        "frontend/adapters",
+        "frontend/adapters/harmonic",
         "bundling",
         "bundles",  # future bundle-specific app config/assets
         "api",  # API endpoints
@@ -310,9 +328,138 @@ app_license = "{license}"
         )
 
     with open(os.path.join(temp_app_path, "backend", "README.md"), "w", encoding="utf-8") as backend_readme:
-        backend_readme.write("# Backend\n\nPython models/services/filters/actions for this app.\n")
+        backend_readme.write(
+            "# Backend\n\n"
+            "3plug backend implementation lives here.\n\n"
+            "Use minimal Django models and place most logic in actions/services/queries.\n"
+        )
     with open(os.path.join(temp_app_path, "frontend", "README.md"), "w", encoding="utf-8") as frontend_readme:
-        frontend_readme.write("# Frontend\n\nJS/JSON/UI assets and shell integration for this app.\n")
+        frontend_readme.write(
+            "# Frontend (Calculus)\n\n"
+            "App-owned frontend code/config for the 3plug Calculus runtime.\n"
+            "Keep shared shell/runtime code in src/ and app-specific UI in this folder.\n"
+        )
+
+    backend_stub_files = {
+        "backend/__init__.py": "",
+        "backend/apps.py": (
+            "from django.apps import AppConfig\n\n\n"
+            f"class {underscore_to_titlecase_main(app_name).replace(' ', '')}BackendConfig(AppConfig):\n"
+            f"    name = '{app_name}.backend'\n"
+            f"    verbose_name = '{title} Backend'\n\n"
+            "    def ready(self):\n"
+            "        # Keep runtime imports lightweight; registries/actions may lazy-load.\n"
+            "        return\n"
+        ),
+        "backend/models/__init__.py": "# Minimal persisted models live here.\n",
+        "backend/migrations/__init__.py": "",
+        "backend/api/__init__.py": "",
+        "backend/api/urls.py": "from django.urls import path\n\nurlpatterns = []\n",
+        "backend/registry/__init__.py": "",
+        "backend/registry/README.md": (
+            "Registry loaders for doc metadata, actions, and query handlers.\n"
+        ),
+        "backend/registry/doc_registry.json": json.dumps(
+            {
+                "app_id": app_name,
+                "bundle_id": plug_name,
+                "version": "0.1.0",
+                "registries": {
+                    "modules": "../../modules.txt",
+                    "docs": "generated_from_modules",
+                },
+                "backend_layers": [
+                    "schemas",
+                    "actions",
+                    "services",
+                    "queries",
+                    "filters",
+                    "adapters/harmonic",
+                ],
+            },
+            indent=2,
+        )
+        + "\n",
+        "backend/schemas/__init__.py": "",
+        "backend/actions/__init__.py": "",
+        "backend/services/__init__.py": "",
+        "backend/queries/__init__.py": "",
+        "backend/filters/__init__.py": "",
+        "backend/adapters/__init__.py": "",
+        "backend/adapters/harmonic/__init__.py": "",
+        "backend/adapters/harmonic/README.md": (
+            "Adapted/translated benchmark-derived logic and compatibility helpers live here.\n"
+        ),
+    }
+    for rel_path, content in backend_stub_files.items():
+        full_path = os.path.join(temp_app_path, *rel_path.split("/"))
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, "w", encoding="utf-8") as fh:
+            fh.write(content)
+
+    frontend_manifest = {
+        "runtime": "calculus",
+        "app_id": app_name,
+        "bundle_id": plug_name,
+        "version": "0.1.0",
+        "entrypoints": {
+            "launcher": None,
+            "routes_registry": "registry/routes.json",
+            "components_registry": "registry/components.json",
+            "widgets_registry": "registry/widgets.json",
+        },
+        "layers": [
+            "components",
+            "routes",
+            "screens",
+            "hooks",
+            "adapters/harmonic",
+        ],
+        "integration": {
+            "mount_strategy": "host_loaded",
+            "host_runtime": "src (Calculus shell/shared runtime)",
+        },
+    }
+    frontend_stub_files = {
+        "frontend/__init__.md": "",
+        "frontend/calculus.app.frontend.json": json.dumps(frontend_manifest, indent=2) + "\n",
+        "frontend/registry/routes.json": json.dumps(
+            {"app_id": app_name, "routes": []}, indent=2
+        )
+        + "\n",
+        "frontend/registry/components.json": json.dumps(
+            {"app_id": app_name, "components": []}, indent=2
+        )
+        + "\n",
+        "frontend/registry/widgets.json": json.dumps(
+            {"app_id": app_name, "widgets": []}, indent=2
+        )
+        + "\n",
+        "frontend/routes/index.js": (
+            "// App route registry exports for Calculus host runtime.\n"
+            "export const appRoutes = [];\n"
+        ),
+        "frontend/components/index.js": (
+            "// App component registry exports for Calculus host runtime.\n"
+            "export const appComponents = {};\n"
+        ),
+        "frontend/screens/index.js": (
+            "// App screen exports for Calculus host runtime.\n"
+            "export const appScreens = {};\n"
+        ),
+        "frontend/hooks/index.js": (
+            "// App-specific hooks for Calculus runtime.\n"
+        ),
+        "frontend/adapters/__init__.md": "",
+        "frontend/adapters/harmonic/README.md": (
+            "Adapted benchmark-derived frontend behavior/components/config helpers live here.\n"
+        ),
+    }
+    for rel_path, content in frontend_stub_files.items():
+        full_path = os.path.join(temp_app_path, *rel_path.split("/"))
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, "w", encoding="utf-8") as fh:
+            fh.write(content)
 
     # Attempt to initialize a git repository
     try:

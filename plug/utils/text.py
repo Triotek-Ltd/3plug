@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from typing import Callable
 
 
@@ -11,8 +12,23 @@ def to_snake_case(name: str) -> str:
     Returns:
         str: The converted name in snake_case.
     """
-    # Replace spaces with underscores and convert to lowercase
-    return name.replace(" ", "_").lower()
+    if name is None:
+        return ""
+
+    value = str(name).strip()
+    if not value:
+        return ""
+
+    # Normalize Unicode punctuation/letters so names are filesystem-safe and stable.
+    value = unicodedata.normalize("NFKD", value)
+    value = value.encode("ascii", "ignore").decode("ascii")
+
+    # Treat separators and punctuation uniformly to avoid nested paths like "a_/_b".
+    value = value.replace("/", " ").replace("\\", " ")
+    value = re.sub(r"[^\w]+", "_", value)
+    value = re.sub(r"_+", "_", value).strip("_")
+
+    return value.lower()
 
 
 def underscore_to_titlecase(underscore_str: str) -> str:
