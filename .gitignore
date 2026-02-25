@@ -66,6 +66,11 @@ next-env.d.ts
 logs/
 **.log
 
+# Docs: ignore all working docs except the journal
+doc/**
+!doc/journal/
+!doc/journal/**
+
 # Ignore folders ending with _app
 **/*_app/
 
