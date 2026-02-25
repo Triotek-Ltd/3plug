@@ -8,6 +8,12 @@ Use this folder for state logging so we can track what we are doing, what change
 
 - `doc/journal/`
 
+## Journaling Rule
+
+- Journal every meaningful planning decision, architecture change, implementation step, and workflow update.
+- Keep entries short but specific enough to reconstruct what happened and why.
+- If a change is intentionally kept out of commits (ignored docs, local experiments), record it here.
+
 ## What to Log
 
 - Current focus / task
