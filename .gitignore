@@ -74,6 +74,7 @@ logs/
 doc/**
 !doc/journal/
 !doc/journal/**
+!doc/cli_internal_guide.md
 
 # Ignore folders ending with _app
 **/*_app/
