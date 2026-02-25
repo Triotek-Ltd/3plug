@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+from datetime import datetime, timezone
 
 import click
 
@@ -10,11 +11,39 @@ from .sites import *
 from .utils.run_process import get_python_executable
 
 
-@click.group()
+class LoggingGroup(click.Group):
+    """Click group that logs every invocation, including help-only paths."""
+
+    def main(self, *args, **kwargs):  # type: ignore[override]
+        _write_cli_command_log("invoke", "click-main")
+        return super().main(*args, **kwargs)
+
+
+def _write_cli_command_log(status: str, note: str = "") -> None:
+    """Append a simple command activity line for local auditing/troubleshooting."""
+    try:
+        project_root = os.getcwd()
+        log_dir = os.path.join(project_root, "logs")
+        os.makedirs(log_dir, exist_ok=True)
+        log_path = os.path.join(log_dir, "cli-commands.log")
+        timestamp = datetime.now(timezone.utc).isoformat()
+        command = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "--help"
+        line = f"{timestamp}\t{status}\tpython={os.path.basename(sys.executable)}\tcmd={command}"
+        if note:
+            line += f"\tnote={note}"
+        with open(log_path, "a", encoding="utf-8") as log_file:
+            log_file.write(line + "\n")
+    except Exception:
+        # Logging must never block command execution.
+        pass
+
+
+@click.group(cls=LoggingGroup)
 @click.pass_context
 def cli(ctx: click.Context) -> None:
     # Bootstrap commands are allowed to run without an existing venv.
     if ctx.invoked_subcommand in {"setup", "init"}:
+        _write_cli_command_log("start", "bootstrap")
         return
 
     venv_python = get_python_executable()
@@ -26,9 +55,11 @@ def cli(ctx: click.Context) -> None:
 
     # If already running inside the project venv, continue normally.
     if current_python == target_python:
+        _write_cli_command_log("start", "in-venv")
         return
 
     # Re-exec the same command inside the project virtual environment.
+    _write_cli_command_log("handoff", "reexec-to-venv")
     result = subprocess.call([venv_python, "-m", "plug.cli", *sys.argv[1:]])
     ctx.exit(result)
 
@@ -92,4 +123,5 @@ cli.add_command(usesite, name="use")
 # Add other commands as needed
 
 if __name__ == "__main__":
+    _write_cli_command_log("invoke", "entrypoint")
     cli()

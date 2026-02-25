@@ -9,13 +9,15 @@ from ..sites.utils.uninstalldjangoapp import uninstall_django_app
 from ..utils.config import (
     PROJECT_ROOT,
     get_app_root_path,
+    get_plug_apps,
+    get_registered_plugs,
     get_registered_apps,
     remove_plug_app,
 )
 
 
 @click.command()
-@click.argument("app")
+@click.argument("app", required=False)
 @click.option(
     "--bundle",
     "--plug",
@@ -23,7 +25,7 @@ from ..utils.config import (
     default=None,
     help="Optional bundle name to disambiguate app location (legacy alias: --plug).",
 )
-def dropapp(app: str, plug_name: str) -> None:
+def dropapp(app: str | None, plug_name: str | None) -> None:
     """
     Delete the specified Django app, uninstall it from all sites using `3plug uninstallapp`,
     and remove it from the configuration.
@@ -59,9 +61,28 @@ def dropapp(app: str, plug_name: str) -> None:
             click.echo(f"App '{app}' not found in plug registries.")
             return
 
+    if not plug_name:
+        candidate_bundles = [
+            bundle for bundle in get_registered_plugs() if selected_app in get_plug_apps(bundle)
+        ]
+        if len(candidate_bundles) > 1:
+            click.echo(f"App '{selected_app}' exists in multiple bundles. Select the bundle:")
+            for i, bundle in enumerate(candidate_bundles, 1):
+                click.echo(f"{i}. {bundle}")
+            bundle_choice = click.prompt("Enter bundle number", type=int)
+            if bundle_choice < 1 or bundle_choice > len(candidate_bundles):
+                click.echo("Invalid bundle selection.")
+                return
+            plug_name = candidate_bundles[bundle_choice - 1]
+        elif len(candidate_bundles) == 1:
+            plug_name = candidate_bundles[0]
+
     # Confirm the deletion
     confirm: bool = click.confirm(
-        f"Are you sure you want to delete the app '{selected_app}'?", default=False
+        f"Are you sure you want to delete the app '{selected_app}'"
+        + (f" from bundle '{plug_name}'" if plug_name else "")
+        + "?",
+        default=False,
     )
     if not confirm:
         click.echo("App deletion canceled.")

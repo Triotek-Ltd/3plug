@@ -92,11 +92,44 @@ def new_bundle(bundle_name: str) -> None:
 
 
 @click.command(name="drop-bundle")
-@click.argument("bundle_name")
-def drop_bundle(bundle_name: str) -> None:
+@click.argument("bundle_name", required=False)
+def drop_bundle(bundle_name: str | None) -> None:
     """Remove a bundle from registry and delete empty bundle directory."""
-    bundle_name = normalize_plug_name(bundle_name)
-    bundles = get_registered_plugs()
+    configured_bundles = [
+        b
+        for b in get_registered_plugs()
+        if os.path.isdir(os.path.join(BUNDLES_ROOT, b))
+    ]
+    discovered_bundle_dirs = []
+    if os.path.isdir(BUNDLES_ROOT):
+        discovered_bundle_dirs = sorted(
+            [
+                entry
+                for entry in os.listdir(BUNDLES_ROOT)
+                if os.path.isdir(os.path.join(BUNDLES_ROOT, entry))
+                and not entry.startswith(".")
+            ]
+        )
+    bundles = []
+    for bundle in configured_bundles + discovered_bundle_dirs:
+        if bundle not in bundles:
+            bundles.append(bundle)
+    if not bundles:
+        click.echo("No bundles are registered.")
+        return
+
+    if not bundle_name:
+        click.echo("Select a bundle to drop:")
+        for index, bundle in enumerate(bundles, 1):
+            click.echo(f"{index}. {bundle}")
+        selection = click.prompt("Enter bundle number", type=int)
+        if selection < 1 or selection > len(bundles):
+            click.echo("Invalid bundle selection.")
+            return
+        bundle_name = bundles[selection - 1]
+    else:
+        bundle_name = normalize_plug_name(bundle_name)
+
     if bundle_name not in bundles:
         click.echo(f"Bundle '{bundle_name}' is not registered.")
         return

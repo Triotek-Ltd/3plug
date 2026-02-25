@@ -141,16 +141,9 @@ def get_registered_plugs() -> List[str]:
         if discovered_bundles:
             return discovered_bundles
 
-    discovered: List[str] = []
-    for entry in os.listdir(PROJECT_ROOT):
-        entry_path = os.path.join(PROJECT_ROOT, entry)
-        if (
-            os.path.isdir(entry_path)
-            and not entry.startswith(".")
-            and entry not in SYSTEM_DIRS
-        ):
-            discovered.append(entry)
-    return discovered
+    # Safety-first: do not auto-discover arbitrary project root folders as bundles.
+    # Bundles must come from config/plugs.txt or actual directories under bundles/.
+    return []
 
 
 def ensure_plug_directory(plug_name: str) -> str:
