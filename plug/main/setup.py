@@ -67,6 +67,9 @@ def setup(with_superuser: bool) -> None:
     click.echo("Upgrading pip...")
     _run_command([python_executable, "-m", "pip", "install", "--upgrade", "pip"])
 
+    click.echo("Installing required Python package: env...")
+    _run_command([python_executable, "-m", "pip", "install", "env"])
+
     click.echo("Installing Python dependencies (editable)...")
     _run_command([python_executable, "-m", "pip", "install", "-e", "."], cwd=PROJECT_ROOT)
 

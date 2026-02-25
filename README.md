@@ -16,6 +16,7 @@ Before installing 3plug CLI, ensure you have:
 Run this from the project root (`originals/3plug`):
 
 ```bash
+pip install env
 3plug setup
 ```
 
@@ -122,6 +123,7 @@ Install dependencies or packages.
 Run first-time setup in one command.
 
 ```bash
+pip install env
 3plug setup
 ```
 

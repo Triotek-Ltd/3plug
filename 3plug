@@ -2,6 +2,21 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CMD_NAME="${1:-}"
+
+if [[ "$CMD_NAME" == "setup" || "$CMD_NAME" == "init" ]]; then
+  if [[ ! -x "$ROOT_DIR/env/Scripts/python.exe" ]]; then
+    echo "Bootstrapping local virtual environment at env..."
+    (cd "$ROOT_DIR" && python -m venv env)
+  fi
+
+  if [[ ! -x "$ROOT_DIR/env/Scripts/3plug.exe" ]]; then
+    echo "Installing 3plug into local virtual environment..."
+    (cd "$ROOT_DIR" && "$ROOT_DIR/env/Scripts/python.exe" -m pip install -e .)
+  fi
+
+  exec "$ROOT_DIR/env/Scripts/3plug.exe" "$@"
+fi
 
 if [[ -x "$ROOT_DIR/env/Scripts/3plug.exe" ]]; then
   exec "$ROOT_DIR/env/Scripts/3plug.exe" "$@"
