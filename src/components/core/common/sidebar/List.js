@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import * as Icons from "react-icons/fa"; // Import all Font Awesome icons
+import { useUiDirection } from "@/contexts/UiDirectionContext";
 
 const SidebarList = ({ icon, text, link, permission }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -12,6 +13,8 @@ const SidebarList = ({ icon, text, link, permission }) => {
   const [perms, setPerms] = useState([]);
 
   const { dashboardText } = useNavbar();
+  const { dir } = useUiDirection();
+  const isRtl = dir === "rtl";
   const active = dashboardText == text;
 
   // Generate a unique ID for each list item
@@ -71,7 +74,7 @@ const SidebarList = ({ icon, text, link, permission }) => {
         onMouseLeave={handleMouseLeave}
       >
         <div
-          className={`mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 ${
+          className={`${isRtl ? "ml-2" : "mr-2"} flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 ${
             isHovered || active
               ? "shadow-soft-xl bg-gradient-to-tl from-purple-700 to-pink-500 text-white"
               : "shadow-soft-2xl"
@@ -79,7 +82,7 @@ const SidebarList = ({ icon, text, link, permission }) => {
         >
           {renderIcon()}
         </div>
-        <span className="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">
+        <span className={`${isRtl ? "mr-1" : "ml-1"} duration-300 opacity-100 pointer-events-none ease-soft`}>
           {text}
         </span>
       </Link>

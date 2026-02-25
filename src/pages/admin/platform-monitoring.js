@@ -3,10 +3,11 @@ import PltWorkspaceRoute from "@/components/platform/workspaces/PltWorkspaceRout
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function HomeDesk() {
+export default function AdminPlatformMonitoringPage() {
   return (
     <div className={inter.className}>
-      <PltWorkspaceRoute configKey="home_entry" />
+      <PltWorkspaceRoute configKey="admin_platform_monitoring" />
     </div>
   );
 }
+

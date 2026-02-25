@@ -16,6 +16,7 @@ import Loader from "@/components/core/common/Loader";
 import ContextConfirmationModal from "@/components/core/common/modal/ContextModal";
 import AppProviders from "@/contexts/AppProviders";
 import DynamicHead from "@/components/core/common/DynamicHead";
+import { useUiDirection } from "@/contexts/UiDirectionContext";
 
 Modal.setAppElement("#__next");
 
@@ -82,12 +83,62 @@ export default function App({ Component, pageProps }) {
   return (
     <>
       <AppProviders>
+        <AppFrame Component={Component} pageProps={pageProps} isClient={isClient} isPublicPage={isPublicPage} isAuthPage={isAuthPage} useAppShell={useAppShell} />
+      </AppProviders>
+    </>
+  );
+}
+
+function AppFrame({ Component, pageProps, isPublicPage, isAuthPage, useAppShell }) {
+  const { dir } = useUiDirection();
+  const isRtl = dir === "rtl";
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !useAppShell || isPublicPage || isAuthPage) return;
+
+    const logShellState = (reason = "effect") => {
+      const shell = document.querySelector("[data-app-shell-dir]");
+      const sidebar = document.querySelector('[data-app-shell-slot="sidebar"]');
+      const content = document.querySelector('[data-app-shell-slot="content"]');
+      const sidebarPanel = document.querySelector("aside > div");
+
+      if (!shell || !sidebar || !content) {
+        console.log("[3plug RTL debug]", reason, "missing shell nodes");
+        return;
+      }
+
+      const s = sidebar.getBoundingClientRect();
+      const c = content.getBoundingClientRect();
+
+      console.log("[3plug RTL debug]", {
+        reason,
+        dir,
+        shellClass: shell.className,
+        sidebarClass: sidebar.className,
+        contentClass: content.className,
+        sidebarPanelClass: sidebarPanel?.className || null,
+        sidebarRect: { left: Math.round(s.left), right: Math.round(s.right), width: Math.round(s.width) },
+        contentRect: { left: Math.round(c.left), right: Math.round(c.right), width: Math.round(c.width) },
+        sidebarVisualSide: s.left < c.left ? "left" : "right",
+        viewport: { w: window.innerWidth, h: window.innerHeight },
+      });
+    };
+
+    logShellState("dir/render");
+    const onResize = () => logShellState("resize");
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [dir, useAppShell, isPublicPage, isAuthPage]);
+
+  return (
+    <>
         <DynamicHead />
         <div
+          dir={dir}
           className={`m-0 font-sans text-base antialiased font-normal font-lato leading-8 leading-default text-slate-700 w-full ${
             isPublicPage
               ? "bg-white min-h-screen"
-              : "bg-brand-surface max-h-screen flex items-center justify-center"
+              : "bg-brand-surface flex min-h-screen items-start md:items-center justify-center"
           }`}
         >
           <ToastContainer
@@ -111,16 +162,17 @@ export default function App({ Component, pageProps }) {
             className={`relative w-full ${
               isPublicPage
                 ? "min-h-screen"
-                : "flex flex-col items-center justify-center h-screen"
+                : "flex min-h-screen flex-col items-center justify-start md:justify-center"
             }`}
           >
             {isPublicPage ? (
               <Component {...pageProps} />
             ) : (
             <div
-              className={`ease-soft-in-out max-h-screen ${
-                useAppShell ? "pt-1 md:pt-14 h-[100vh]" : ""
-              } flex flex-row relative items-center justify-center rounded-xl transition-all duration-200 w-full max-w-[1536px]`}
+              data-app-shell-dir={dir}
+              className={`ease-soft-in-out ${
+                useAppShell ? "pt-16 md:pt-14 md:h-[100vh]" : ""
+              } relative w-full max-w-[1536px] rounded-xl transition-all duration-200 md:flex md:items-stretch md:justify-start`}
             >
               {isAuthPage ? (
                 <div className="flex-grow overflow-y-auto">
@@ -130,11 +182,11 @@ export default function App({ Component, pageProps }) {
                 </div>
               ) : (
                 <>
-                  <div className="h-[88vh] w-fit">
+                  <div data-app-shell-slot="sidebar" className="w-0 shrink-0 md:w-fit md:h-[88vh]">
                     <Sidebar />
                   </div>
-                  <div className="flex-grow flex flex-col w-full">
-                    <div className="flex-grow h-full md:h-[88vh] pt-[6vh] md:pt-0 overflow-y-auto">
+                  <div data-app-shell-slot="content" className="flex-1 flex flex-col w-full min-w-0">
+                    <div className="flex-grow min-h-0 md:h-[88vh] pt-0 overflow-y-auto">
                       <div className="relative flex-grow">
                         <Component {...pageProps} />
                       </div>
@@ -150,7 +202,6 @@ export default function App({ Component, pageProps }) {
           <ContextConfirmationModal />
           {/* <div id="dropdown-root"></div> */}
         </div>
-      </AppProviders>
     </>
   );
 }

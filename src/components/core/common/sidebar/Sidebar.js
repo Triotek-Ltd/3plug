@@ -38,6 +38,7 @@ import sidebarConfig from "@/data/sidebar.json"; // Import sidebar.json for side
 import Link from "next/link";
 import { fetchData } from "@/utils/Api";
 import { useData } from "@/contexts/DataContext";
+import { useUiDirection } from "@/contexts/UiDirectionContext";
 
 const Sidebar = () => {
   const { sidebarWidth, setSidebarWidth, sidebarHidden } = useSidebar();
@@ -47,6 +48,8 @@ const Sidebar = () => {
   const [sidebarLinks, setSidebarLinks] = useState([]);
   const router = useRouter();
   const { websiteSettings } = useData();
+  const { dir } = useUiDirection();
+  const isRtl = dir === "rtl";
   const companyName =
     websiteSettings?.site_title || websiteSettings?.app_name || "3plug";
   const companyLogo = websiteSettings?.app_logo || "/brand/logo-3plug.png";
@@ -107,7 +110,7 @@ const Sidebar = () => {
         {isCollapsed && (
           <button
             onClick={toggleSidebar}
-            className="w-fit fixed z-100 text-slate-700 py-2 px-2 group text-sm md:text-xl top-2 md:top-16 bg-gray-50 rounded" // Use group class for managing hover effect
+            className={`w-fit fixed z-100 text-slate-700 py-2 px-2 group text-sm md:text-xl top-2 md:top-16 bg-gray-50 rounded ${isRtl ? "left-2" : "right-2"}`}
           >
             {/* Default icon (faBars) */}
             <FontAwesomeIcon
@@ -116,29 +119,31 @@ const Sidebar = () => {
             />
             {/* Hover icon (faAngleDoubleRight) */}
             <FontAwesomeIcon
-              icon={faAngleDoubleLeft}
+              icon={isRtl ? faAngleDoubleRight : faAngleDoubleLeft}
               className="transition-all duration-300 ease-in-out hidden group-hover:block" // Show on hover
             />
           </button>
         )}
 
         <div
-          className={`w-fit h-[110vh] md:max-h-[92vh] overflow-auto ease-nav-brand block -translate-x-full flex-wrap flex-grow items-center justify-between border-0 p-1 antialiased transition-transform duration-200 left-0 translate-x-0 ${
+          className={`w-fit h-[110vh] md:max-h-[92vh] overflow-auto ease-nav-brand block -translate-x-full flex-wrap flex-grow items-center justify-between border-0 p-1 antialiased transition-transform duration-200 ${
+            isRtl ? "right-0 md:right-auto md:left-auto" : "left-0 md:left-auto md:right-auto"
+          } translate-x-0 ${
             !isCollapsed ? "fixed md:relative" : "hidden"
           }`}
         >
-          <div className="h-fit flex items-center justify-start gap-2 px-3">
+          <div className={`h-fit flex items-center ${isRtl ? "justify-end" : "justify-start"} gap-2 px-3`}>
             <Link
               href={`/${pageInfo?.link}` || "/"}
               className="block py-2 m-0 text-sm text-slate-700"
             >
-              <div className="flex flex-col items-start gap-1 transition-all duration-200 ease-nav-brand">
+              <div className={`flex flex-col ${isRtl ? "items-end text-right" : "items-start text-left"} gap-1 transition-all duration-200 ease-nav-brand`}>
                 <img
                   src={companyLogo}
                   alt="Company Logo"
-                  className="h-[150px] w-auto max-w-[180px] object-contain object-left"
+                  className={`h-[150px] w-auto max-w-[180px] object-contain ${isRtl ? "object-right" : "object-left"}`}
                 />
-                <span className="font-semibold text-sm text-left">
+                <span className={`font-semibold text-sm ${isRtl ? "text-right" : "text-left"}`}>
                   {companyName}
                 </span>
               </div>
@@ -152,7 +157,7 @@ const Sidebar = () => {
                 className="transition-all duration-300 ease-in-out group-hover:hidden"
               />
               <FontAwesomeIcon
-                icon={faAngleDoubleRight}
+                icon={isRtl ? faAngleDoubleLeft : faAngleDoubleRight}
                 className="transition-all duration-300 ease-in-out hidden group-hover:block"
               />
             </button>
@@ -160,12 +165,12 @@ const Sidebar = () => {
 
           <hr className="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent" />
 
-          <div className="items-center block w-auto h-fit grow basis-full scrollbar scrollbar-thin scrollbar-thumb-slate-50 scrollbar-track-slate-100 pr-2">
+          <div className={`items-center block w-auto h-fit grow basis-full scrollbar scrollbar-thin scrollbar-thumb-slate-50 scrollbar-track-slate-100 ${isRtl ? "pl-2" : "pr-2"}`}>
             <ul className="flex flex-col mb-4">
               <SidebarList
                 icon={faDashboard}
                 text="Home"
-                link="/"
+                link="/home"
                 active={dashboardText === "Home"}
               />
 
@@ -179,8 +184,8 @@ const Sidebar = () => {
                 />
               ))}
 
-              <li className="w-full mb-2 mt-6 pr-2">
-                <h6 className="pl-3 ml-2 text-xs font-bold leading-tight uppercase opacity-60">
+              <li className={`w-full mb-2 mt-6 ${isRtl ? "pl-2" : "pr-2"}`}>
+                <h6 className={`${isRtl ? "pr-3 mr-2 text-right" : "pl-3 ml-2 text-left"} text-xs font-bold leading-tight uppercase opacity-60`}>
                   Admin
                 </h6>
               </li>

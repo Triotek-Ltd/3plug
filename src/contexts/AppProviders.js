@@ -3,17 +3,20 @@ import { ModalProvider } from "./ModalContext";
 import { NavbarProvider } from "./NavbarContext";
 import { SidebarProvider } from "./SidebarContext";
 import { ToastProvider } from "./ToastContext";
+import { UiDirectionProvider } from "./UiDirectionContext";
 
 const AppProviders = ({ children }) => {
   return (
     <ToastProvider>
-      <SidebarProvider>
-        <NavbarProvider>
-          <DataProvider>
-            <ModalProvider>{children}</ModalProvider>
-          </DataProvider>
-        </NavbarProvider>
-      </SidebarProvider>
+      <UiDirectionProvider>
+        <SidebarProvider>
+          <NavbarProvider>
+            <DataProvider>
+              <ModalProvider>{children}</ModalProvider>
+            </DataProvider>
+          </NavbarProvider>
+        </SidebarProvider>
+      </UiDirectionProvider>
     </ToastProvider>
   );
 };
