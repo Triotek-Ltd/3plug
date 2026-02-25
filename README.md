@@ -124,138 +124,50 @@ Notes:
 
 ## Usage
 
-3plug CLI commands start with `3plug`. Here are the available commands:
+Public CLI usage is intentionally limited.
 
-#### Setup and update Site environment
+### Public Commands (Only)
 
-```bash
-3plug install
-```
+The only public-facing command verbs are:
+- `new`
+- `get`
+- `drop`
 
-### Command: 3plug migrate
+These are used at the `bundle` and `app` level.
 
-Migrate database schema changes.
+Examples (auto env launchers):
 
-```bash
-3plug migrate
-```
-
-### Command: 3plug start
-
-Start the development server.
-
-```bash
-3plug start dev
-```
-
-### Command: 3plug install
-
-Install dependencies or packages.
-
-```bash
-3plug install
-```
-
-### Command: 3plug setup
-
-Run first-time setup in one command.
-
-```bash
-pip install env
-3plug setup
-```
-
-Install node dependencies.
-
-```bash
-3plug npm install dep1 dep2
-```
-
-Install node dependencies for a custom app.
-
-```bash
-3plug npm install --app appname dep1 dep2
-```
-
-or
-
-```bash
-3plug npm i dep1 dep2
-3plug npm i --app appname dep1 dep2
-```
-
-Install python packages.
-
-```bash
-3plug pip install package1 package1
-```
-
-Install python packages for a custom app..
-
-```bash
-3plug pip install --app appname  package1 package1
-```
-
-or
-
-```bash
-3plug pip i package1 package1
-3plug pip i --app appname  package1 package1
-```
-
-### Bundle commands (primary)
-
-```bash
-# Use local launchers (auto env)
-.\3plug.cmd set-bundles ops mgt adm integrations
-.\3plug.cmd list-bundles
+- Windows PowerShell / CMD:
+```powershell
 .\3plug.cmd new-bundle ops
-.\3plug.cmd drop-bundle ops
-```
-
-Compatibility aliases (temporary):
-- `set-plugs`
-- `list-plugs`
-- `new-plug`
-- `drop-plug`
-
-### App / Module / Submodule / Doc scaffold commands (v1)
-
-```bash
-# create app in a bundle (repo-ready scaffold)
+.\3plug.cmd get-app <repo_url> my_app --bundle ops
 .\3plug.cmd new-app my_app --bundle ops
-
-# create module directly inside the app root
-.\3plug.cmd new-module my_app sales_ops
-
-# create submodule inside the module
-.\3plug.cmd new-submodule my_app sales_ops intake
-
-# create doc inside module/submodule (also writes actions/schema/doc meta)
-.\3plug.cmd new-doc --app my_app --module sales_ops --submodule intake "Lead Intake Record"
-```
-
-Drop flow:
-
-```bash
-.\3plug.cmd drop-doc --app my_app --module sales_ops --submodule intake lead_intake_record
-.\3plug.cmd drop-submodule my_app sales_ops intake
-.\3plug.cmd drop-module my_app sales_ops
 .\3plug.cmd drop-app my_app --bundle ops
 .\3plug.cmd drop-bundle ops
 ```
 
-Doc compatibility aliases (temporary):
-- `new-doctype`
-- `drop-doctype`
-
-### Command: 3plug get-app
-
-Clone an app into a selected bundle.
-
+- Git Bash / Linux / macOS:
 ```bash
-./3plug get-app <repo_url> my_app --bundle integrations
+./3plug new-bundle ops
+./3plug get-app <repo_url> my_app --bundle ops
+./3plug new-app my_app --bundle ops
+./3plug drop-app my_app --bundle ops
+./3plug drop-bundle ops
 ```
+
+Notes:
+- `get-app` requires the app repository URL (`<repo_url>`).
+- `new-bundle` creates a local grouping folder/registry (no git repo).
+- `new-app` creates a standalone app repo scaffold (`git init` runs inside the app folder).
+- `drop-*` removes local scaffolds/registries; runtime record actions belong in the desks/portal UI.
+
+### Internal / Reserved Commands
+
+The following command areas are reserved for developers, publishers, or platform operators and are not part of the public CLI surface:
+- structure scaffolding below app level (`new-module`, `new-submodule`, `new-doc`, `drop-*` for module/submodule/doc)
+- setup/migrate/build/deploy operations
+- platform update/upgrade/release flows
+- compatibility aliases (`*-plug`, `new-doctype`, `drop-doctype`) during transition
 
 ### Command Safety
 
@@ -278,13 +190,16 @@ The CLI and launcher wrappers auto-run through the project env for safety. Manua
 ### Command Access Policy (v1)
 
 - Normal platform use should move to desks/portal UI and platform `update` / `upgrade` flows.
-- In the main repo, the most common CLI actions should be:
-  - `new-bundle` / `get-app` / `new-app` (for published or new app repos)
+- Public-facing CLI command verbs are only:
+  - `new`
+  - `get`
+  - `drop`
+- Public usage is at bundle/app level (for published or new app repos).
 - Bundle folders are grouping containers; app folders are the versioned release units (their own repos).
 - Deeper scaffold commands are reserved for developers/publishers:
   - `new-module`, `new-submodule`, `new-doc`
   - `drop-*` structure commands
-- `install-app` / `uninstall-app` remain platform setup operations (app installation only).
+- `install-app` / `uninstall-app` remain platform setup operations (app installation only) and are not part of the public CLI surface.
 
 ## Development
 
