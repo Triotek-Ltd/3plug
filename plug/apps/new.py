@@ -11,7 +11,9 @@ from ..utils.config import (
     PROJECT_ROOT,
     add_plug_app,
     ensure_plug_directory,
+    ensure_plug_scaffold,
     get_registered_plugs,
+    validate_non_reserved_name,
 )
 from ..utils.text import underscore_to_titlecase_main
 from .utils.file_creater import create_files_from_templates
@@ -40,38 +42,39 @@ LICENSE_CHOICES = [
 
 @click.command()
 @click.argument("app_name")
-@click.option("--plug", "plug_name", default=None, help="Target plug name.")
+@click.option(
+    "--bundle",
+    "--plug",
+    "plug_name",
+    default=None,
+    help="Target bundle name (legacy alias: --plug).",
+)
 @click.option(
     "--title",
-    prompt="App Title",
     default="My Plug App",
     help="The title of your app",
     show_default=True,
 )
 @click.option(
     "--description",
-    prompt="App Description",
     default="This is a new plug app.",
     help="A short description of your app",
     show_default=True,
 )
 @click.option(
     "--publisher",
-    prompt="App Publisher",
     default="Triotek Ltd",
     help="The publisher of your app",
     show_default=True,
 )
 @click.option(
     "--email",
-    prompt="Publisher Email",
     default="contact@example.io",
     help="The email of the publisher",
     show_default=True,
 )
 @click.option(
     "--license",
-    prompt="App License",
     type=click.Choice(LICENSE_CHOICES, case_sensitive=False),
     default="MIT",
     help="License for the app",
@@ -96,6 +99,10 @@ def newapp(
     :param email: Email of the publisher.
     :param license: License for the app.
     """
+    app_name = validate_non_reserved_name(app_name, "app")
+    if plug_name:
+        plug_name = validate_non_reserved_name(plug_name, "bundle")
+
     available_plugs = get_registered_plugs()
     if not available_plugs:
         click.echo("No plug options found. Add plug names to config/plugs.txt.")
@@ -111,13 +118,21 @@ def newapp(
             return
         plug_name = available_plugs[plug_choice - 1]
     elif plug_name not in available_plugs:
+        # v1 behavior: auto-create/register missing bundle for faster new/get flow.
         click.echo(
-            f"Invalid plug '{plug_name}'. Allowed plugs: {', '.join(available_plugs)}"
+            f"Bundle '{plug_name}' is not registered yet. Creating/registering it now..."
         )
-        return
+        ensure_plug_scaffold(plug_name)
 
     # Define paths
     plug_root = ensure_plug_directory(plug_name)
+    # Ensure bundle registry contains the bundle if it was auto-created above.
+    bundles_after = get_registered_plugs()
+    if plug_name not in bundles_after:
+        config_plugs_path = os.path.join(PROJECT_ROOT, "config", "plugs.txt")
+        os.makedirs(os.path.dirname(config_plugs_path), exist_ok=True)
+        with open(config_plugs_path, "a", encoding="utf-8") as f:
+            f.write(f"{plug_name}\n")
     temp_app_path = os.path.join(plug_root, f"temp_{app_name}")
     final_app_path = os.path.join(plug_root, app_name)
 

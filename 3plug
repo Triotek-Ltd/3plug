@@ -4,27 +4,63 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CMD_NAME="${1:-}"
 
+find_launcher() {
+  local base="$1"
+  if [[ -x "$base/env/bin/3plug" ]]; then
+    echo "$base/env/bin/3plug"
+    return 0
+  fi
+  if [[ -x "$base/env/Scripts/3plug.exe" ]]; then
+    echo "$base/env/Scripts/3plug.exe"
+    return 0
+  fi
+  if [[ -x "$base/.venv/bin/3plug" ]]; then
+    echo "$base/.venv/bin/3plug"
+    return 0
+  fi
+  if [[ -x "$base/.venv/Scripts/3plug.exe" ]]; then
+    echo "$base/.venv/Scripts/3plug.exe"
+    return 0
+  fi
+  return 1
+}
+
+find_python() {
+  local base="$1"
+  if [[ -x "$base/env/bin/python3" ]]; then
+    echo "$base/env/bin/python3"
+    return 0
+  fi
+  if [[ -x "$base/env/bin/python" ]]; then
+    echo "$base/env/bin/python"
+    return 0
+  fi
+  if [[ -x "$base/env/Scripts/python.exe" ]]; then
+    echo "$base/env/Scripts/python.exe"
+    return 0
+  fi
+  return 1
+}
+
 if [[ "$CMD_NAME" == "setup" || "$CMD_NAME" == "init" || "$CMD_NAME" == "setup-dev-env" ]]; then
-  if [[ ! -x "$ROOT_DIR/env/Scripts/python.exe" ]]; then
+  if ! PYTHON_EXE="$(find_python "$ROOT_DIR")"; then
     echo "Bootstrapping local virtual environment at env..."
-    (cd "$ROOT_DIR" && python -m venv env)
+    (cd "$ROOT_DIR" && (python3 -m venv env || python -m venv env))
+    PYTHON_EXE="$(find_python "$ROOT_DIR")"
   fi
 
-  if [[ ! -x "$ROOT_DIR/env/Scripts/3plug.exe" ]]; then
+  if ! LAUNCHER="$(find_launcher "$ROOT_DIR")"; then
     echo "Installing 3plug into local virtual environment..."
-    (cd "$ROOT_DIR" && "$ROOT_DIR/env/Scripts/python.exe" -m pip install -e .)
+    (cd "$ROOT_DIR" && "$PYTHON_EXE" -m pip install -e .)
+    LAUNCHER="$(find_launcher "$ROOT_DIR")"
   fi
 
-  exec "$ROOT_DIR/env/Scripts/3plug.exe" "$@"
+  exec "$LAUNCHER" "$@"
 fi
 
-if [[ -x "$ROOT_DIR/env/Scripts/3plug.exe" ]]; then
-  exec "$ROOT_DIR/env/Scripts/3plug.exe" "$@"
+if LAUNCHER="$(find_launcher "$ROOT_DIR")"; then
+  exec "$LAUNCHER" "$@"
 fi
 
-if [[ -x "$ROOT_DIR/.venv/Scripts/3plug.exe" ]]; then
-  exec "$ROOT_DIR/.venv/Scripts/3plug.exe" "$@"
-fi
-
-echo "3plug virtual environment not found. Run: python -m venv .venv && ./.venv/Scripts/python.exe -m pip install -e ."
+echo "3plug virtual environment not found. Run: python3 -m venv env && ./env/bin/python -m pip install -e . (or Windows env\\Scripts\\python.exe -m pip install -e .)"
 exit 1

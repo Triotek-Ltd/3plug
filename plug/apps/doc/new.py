@@ -4,7 +4,7 @@ from typing import List, Optional
 import click
 
 from ...sites.migrate.migrate import run_migration
-from ...utils.config import get_app_module_path, get_registered_apps
+from ...utils.config import get_app_module_path, get_registered_apps, validate_non_reserved_name
 from ...utils.text import to_snake_case
 from .file_handler import create_files
 
@@ -34,6 +34,14 @@ def newdoc(
         app (Optional[str]): The name or number of the app.
         module (Optional[str]): The name or number of the module.
     """
+    doc_name = validate_non_reserved_name(doc_name, "doc")
+    if app:
+        app = validate_non_reserved_name(app, "app")
+    if module:
+        module = validate_non_reserved_name(module, "module")
+    if submodule_name:
+        submodule_name = validate_non_reserved_name(submodule_name, "submodule")
+
     # Convert inputs to snake_case
     doc_id: str = to_snake_case(doc_name)
     app = to_snake_case(app) if app else None

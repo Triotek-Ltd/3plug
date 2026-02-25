@@ -10,7 +10,9 @@ from ..utils.config import (
     PROJECT_ROOT,
     add_plug_app,
     ensure_plug_directory,
+    ensure_plug_scaffold,
     get_registered_plugs,
+    validate_non_reserved_name,
 )
 from ..utils.run_process import get_python_executable, run_subprocess
 
@@ -41,7 +43,13 @@ def remove_hiredis_from_toml() -> None:
 @click.command()
 @click.argument("git_url")
 @click.argument("name")
-@click.option("--plug", "plug_name", default=None, help="Target plug name.")
+@click.option(
+    "--bundle",
+    "--plug",
+    "plug_name",
+    default=None,
+    help="Target bundle name (legacy alias: --plug).",
+)
 def getapp(git_url: str, name: str, plug_name: str) -> None:
     """
     Clone a Django app from a Git repository using the provided URL and optional app name.
@@ -50,6 +58,10 @@ def getapp(git_url: str, name: str, plug_name: str) -> None:
         git_url (str): The URL of the Git repository to clone.
         name (str): The name of the app to be used. If not provided, it will be parsed from the git_url.
     """
+    name = validate_non_reserved_name(name, "app")
+    if plug_name:
+        plug_name = validate_non_reserved_name(plug_name, "bundle")
+
     # Parse the app name from the git URL if --name is not provided
     if name:
         app_name = name
@@ -73,9 +85,13 @@ def getapp(git_url: str, name: str, plug_name: str) -> None:
         plug_name = available_plugs[plug_choice - 1]
     elif plug_name not in available_plugs:
         click.echo(
-            f"Invalid plug '{plug_name}'. Allowed plugs: {', '.join(available_plugs)}"
+            f"Bundle '{plug_name}' is not registered yet. Creating/registering it now..."
         )
-        return
+        ensure_plug_scaffold(plug_name)
+        config_plugs_path = os.path.join(PROJECT_ROOT, "config", "plugs.txt")
+        os.makedirs(os.path.dirname(config_plugs_path), exist_ok=True)
+        with open(config_plugs_path, "a", encoding="utf-8") as f:
+            f.write(f"{plug_name}\n")
 
     # Define the target directory for the new app
     plug_root = ensure_plug_directory(plug_name)

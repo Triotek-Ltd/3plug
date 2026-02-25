@@ -2,3 +2,4 @@ ops
 mgt
 adm
 integrations
+zzcmdtest

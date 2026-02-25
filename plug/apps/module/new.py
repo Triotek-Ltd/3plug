@@ -9,7 +9,7 @@ from typing import List
 import click
 
 from ...sites.migrate.migrate import run_migration
-from ...utils.config import get_app_module_path
+from ...utils.config import get_app_module_path, validate_non_reserved_name
 from ...utils.text import to_snake_case, underscore_to_titlecase_main
 
 
@@ -24,6 +24,8 @@ def newmodule(app_name: str, module: str) -> None:
         app_name (str): The name of the Django app.
         module (str): The name of the new module to create.
     """
+    module = validate_non_reserved_name(module, "module")
+    app_name = validate_non_reserved_name(app_name, "app")
     module_name = to_snake_case(module)
     app_name = to_snake_case(app_name)
     app_path = get_app_module_path(app_name)

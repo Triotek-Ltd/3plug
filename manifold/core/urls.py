@@ -111,3 +111,4 @@ try:
     urlpatterns += [path("shop/", include("shop_app.urls"))]
 except ModuleNotFoundError:
     pass
+urlpatterns += [    path('zz_cmd_app/', include('zz_cmd_app_app.urls')),]

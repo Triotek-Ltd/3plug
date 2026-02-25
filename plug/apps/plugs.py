@@ -10,6 +10,7 @@ from ..utils.config import (
     get_plug_apps,
     get_registered_plugs,
     normalize_plug_name,
+    validate_non_reserved_name,
 )
 
 
@@ -71,6 +72,7 @@ def set_bundles(bundle_names: tuple[str, ...]) -> None:
 def new_bundle(bundle_name: str) -> None:
     """Create/register a single bundle directory under bundles/."""
     bundle_name = normalize_plug_name(bundle_name)
+    bundle_name = validate_non_reserved_name(bundle_name, "bundle")
     if not bundle_name:
         click.echo("Bundle name is required.")
         return

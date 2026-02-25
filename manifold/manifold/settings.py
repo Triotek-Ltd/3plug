@@ -74,6 +74,8 @@ if os.path.isdir(os.path.join(BASE_DIR, "shop_app")):
     CUSTOM_APPS.append("shop_app")
 
 # Final Installed Apps List
+if os.path.isdir(os.path.join(BASE_DIR, "zz_cmd_app_app")):
+    CUSTOM_APPS.append("zz_cmd_app_app")
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
 
 
@@ -338,3 +340,6 @@ sys.path.append(str(os.path.join(PROJECT_PATH, "apps", "shop")))
 
 
 
+
+
+sys.path.append(str(os.path.join(PROJECT_PATH, "bundles", "zzcmdtest", "zz_cmd_app")))

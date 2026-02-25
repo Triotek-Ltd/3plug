@@ -37,15 +37,19 @@ If needed, you can still run setup steps manually:
 
 ### Start Development Server (After Setup)
 
-Activate virtual environment first if `3plug` is not globally available.
+Use the project launcher directly (no manual env activation required):
 
-```bash
-3plug start dev
+- Windows PowerShell / CMD:
+```powershell
+.\3plug.cmd start dev
 ```
 
-`3plug start dev` uses the project virtual environment Python and starts Django + Next.js concurrently.
+- Git Bash / Linux / macOS shell:
+```bash
+./3plug start dev
+```
 
-Note: CLI commands now auto-run through the project virtual environment for safety.
+`3plug start dev` uses the project virtual environment automatically and starts Django + Next.js concurrently.
 
 ### Running Without Manual Activate
 
@@ -258,10 +262,16 @@ CLI commands are expected to run through the project virtual environment for saf
 Recommended invocation in this repo:
 
 ```bash
-env\Scripts\python.exe -m plug.cli --help
+./3plug --help
 ```
 
-The CLI also re-execs into the project env automatically for normal `3plug ...` usage when available.
+On Windows PowerShell/CMD, use:
+
+```powershell
+.\3plug.cmd --help
+```
+
+The CLI and launcher wrappers auto-run through the project env for safety. Manual env activation should not be required for normal use.
 
 ### Command Access Policy (v1)
 

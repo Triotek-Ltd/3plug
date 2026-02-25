@@ -3,7 +3,7 @@ import os
 
 import click
 
-from ...utils.config import get_app_module_path
+from ...utils.config import get_app_module_path, validate_non_reserved_name
 from ...utils.text import to_snake_case, underscore_to_titlecase_main
 
 
@@ -26,6 +26,9 @@ def _write_lines(path: str, values: list[str]) -> None:
 @click.argument("submodule_name")
 def newsubmodule(app_name: str, module_name: str, submodule_name: str) -> None:
     """Create a 3plug submodule scaffold under an app module."""
+    app_name = validate_non_reserved_name(app_name, "app")
+    module_name = validate_non_reserved_name(module_name, "module")
+    submodule_name = validate_non_reserved_name(submodule_name, "submodule")
     app_id = to_snake_case(app_name)
     module_id = to_snake_case(module_name)
     submodule_id = to_snake_case(submodule_name)

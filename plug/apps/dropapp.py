@@ -17,10 +17,11 @@ from ..utils.config import (
 @click.command()
 @click.argument("app")
 @click.option(
+    "--bundle",
     "--plug",
     "plug_name",
     default=None,
-    help="Optional plug name to disambiguate app location.",
+    help="Optional bundle name to disambiguate app location (legacy alias: --plug).",
 )
 def dropapp(app: str, plug_name: str) -> None:
     """

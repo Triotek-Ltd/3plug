@@ -49,10 +49,31 @@ LEGACY_PLUG_ALIASES = {
     "administration": "adm",
 }
 
+RESERVED_ENTITY_NAMES = {
+    "bundle",
+    "app",
+    "module",
+    "submodule",
+    "doc",
+}
+
 
 def normalize_plug_name(plug_name: str) -> str:
     clean = plug_name.strip()
     return LEGACY_PLUG_ALIASES.get(clean, clean)
+
+
+def validate_non_reserved_name(name: str, entity_label: str) -> str:
+    clean = (name or "").strip()
+    if not clean:
+        raise click.BadParameter(f"{entity_label} name is required.")
+    if clean.lower() in RESERVED_ENTITY_NAMES:
+        reserved = ", ".join(sorted(RESERVED_ENTITY_NAMES))
+        raise click.BadParameter(
+            f"'{clean}' is a reserved generic name. Use a specific {entity_label} name. "
+            f"Reserved names: {reserved}."
+        )
+    return clean
 
 
 def get_plug_directory_path(plug_name: str) -> str:
@@ -193,8 +214,9 @@ def ensure_plug_scaffold(plug_name: str) -> None:
             )
             bundle_meta_file.write("\n")
 
-    # Base folders for plug-level documentation and translation assets.
-    os.makedirs(os.path.join(plug_path, "docs"), exist_ok=True)
+    # Base folders for bundle-level documentation and translation assets.
+    # Use `documentation/` to avoid naming conflict with 3plug runtime `doc` records.
+    os.makedirs(os.path.join(plug_path, "documentation"), exist_ok=True)
     os.makedirs(os.path.join(plug_path, "translations"), exist_ok=True)
 
 
