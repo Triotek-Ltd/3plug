@@ -119,6 +119,8 @@ Notes:
 - Runtime business actions should happen in desks/portal UI, not via scaffold commands.
 - `install-*` / `uninstall-*` remain app-focused setup operations.
 - App repos under `bundles/<bundle>/<app>` are local working clones/scaffolds and should not be committed to this main repo (they are versioned in their own repos).
+- `new-bundle` creates a local bundle registry folder only (no `git init`).
+- `new-app` creates a standalone app repo scaffold and runs `git init` inside the app folder.
 
 ## Usage
 
@@ -204,11 +206,11 @@ or
 ### Bundle commands (primary)
 
 ```bash
-# Env-safe (recommended in this repo)
-env\Scripts\python.exe -m plug.cli set-bundles ops mgt adm integrations
-env\Scripts\python.exe -m plug.cli list-bundles
-env\Scripts\python.exe -m plug.cli new-bundle ops
-env\Scripts\python.exe -m plug.cli drop-bundle ops
+# Use local launchers (auto env)
+.\3plug.cmd set-bundles ops mgt adm integrations
+.\3plug.cmd list-bundles
+.\3plug.cmd new-bundle ops
+.\3plug.cmd drop-bundle ops
 ```
 
 Compatibility aliases (temporary):
@@ -221,26 +223,26 @@ Compatibility aliases (temporary):
 
 ```bash
 # create app in a bundle (repo-ready scaffold)
-env\Scripts\python.exe -m plug.cli new-app my_app --plug ops
+.\3plug.cmd new-app my_app --bundle ops
 
 # create module directly inside the app root
-env\Scripts\python.exe -m plug.cli new-module my_app sales_ops
+.\3plug.cmd new-module my_app sales_ops
 
 # create submodule inside the module
-env\Scripts\python.exe -m plug.cli new-submodule my_app sales_ops intake
+.\3plug.cmd new-submodule my_app sales_ops intake
 
 # create doc inside module/submodule (also writes actions/schema/doc meta)
-env\Scripts\python.exe -m plug.cli new-doc --app my_app --module sales_ops --submodule intake "Lead Intake Record"
+.\3plug.cmd new-doc --app my_app --module sales_ops --submodule intake "Lead Intake Record"
 ```
 
 Drop flow:
 
 ```bash
-env\Scripts\python.exe -m plug.cli drop-doc --app my_app --module sales_ops --submodule intake lead_intake_record
-env\Scripts\python.exe -m plug.cli drop-submodule my_app sales_ops intake
-env\Scripts\python.exe -m plug.cli drop-module my_app sales_ops
-env\Scripts\python.exe -m plug.cli drop-app my_app --plug ops
-env\Scripts\python.exe -m plug.cli drop-bundle ops
+.\3plug.cmd drop-doc --app my_app --module sales_ops --submodule intake lead_intake_record
+.\3plug.cmd drop-submodule my_app sales_ops intake
+.\3plug.cmd drop-module my_app sales_ops
+.\3plug.cmd drop-app my_app --bundle ops
+.\3plug.cmd drop-bundle ops
 ```
 
 Doc compatibility aliases (temporary):
@@ -252,7 +254,7 @@ Doc compatibility aliases (temporary):
 Clone an app into a selected bundle.
 
 ```bash
-3plug get-app https://github.com/example/repo.git my_app --plug integrations
+./3plug get-app <repo_url> my_app --bundle integrations
 ```
 
 ### Command Safety
@@ -278,6 +280,7 @@ The CLI and launcher wrappers auto-run through the project env for safety. Manua
 - Normal platform use should move to desks/portal UI and platform `update` / `upgrade` flows.
 - In the main repo, the most common CLI actions should be:
   - `new-bundle` / `get-app` / `new-app` (for published or new app repos)
+- Bundle folders are grouping containers; app folders are the versioned release units (their own repos).
 - Deeper scaffold commands are reserved for developers/publishers:
   - `new-module`, `new-submodule`, `new-doc`
   - `drop-*` structure commands
@@ -297,6 +300,6 @@ To contribute to 3plug CLI development, follow these steps:
 
 ## License
 
-This project is licensed under the MIT License.
-Copyright (c) 2026 Triotek Systems Ltd.
-See `LICENSE` for full terms.
+This project uses Triotek custom proprietary terms for platform/runtime distribution.
+Bundle and app scaffolds also default to `CUSTOM-PROPRIETARY` and should carry their own license files/terms in their respective repos.
+See `LICENSE` for main repo terms.

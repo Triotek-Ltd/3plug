@@ -177,10 +177,28 @@ def autofill_license(license_text: str) -> str:
 def create_license(base_path: str, license_type: str) -> None:
     """Create a LICENSE.txt file with the specified license type."""
     license_path = os.path.join(base_path, "LICENSE.txt")
+    normalized_license = normalize_license_name(license_type)
 
-    # Fetch and autofill license text
-    license_content = fetch_license_text(license_type)
-    license_content = autofill_license(license_content)
+    if normalized_license.upper() == "CUSTOM-PROPRIETARY":
+        license_content = f"""3plug Custom Proprietary License (Placeholder)
+
+License ID: CUSTOM-PROPRIETARY
+Owner: Triotek Systems Ltd (or the app/bundle publisher stated in app metadata)
+
+This software is proprietary and is not licensed under an open-source license.
+Use, copying, modification, redistribution, sublicensing, and deployment are
+subject to the publisher's commercial terms, platform terms, and any executed
+agreement.
+
+Important:
+- This file is a scaffold placeholder for proprietary terms.
+- Replace/update this file with the final approved legal terms before release.
+- App repositories and bundle manifests may carry their own publisher-specific terms.
+"""
+    else:
+        # Fetch and autofill license text
+        license_content = fetch_license_text(license_type)
+        license_content = autofill_license(license_content)
 
     # Ensure the directory exists
     os.makedirs(os.path.dirname(license_path), exist_ok=True)

@@ -1,21 +1,30 @@
-MIT License
+3plug Platform Framework License (CUSTOM-PROPRIETARY)
 
 Copyright (c) 2026 Triotek Systems Ltd
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software and its associated source code, assets, documentation, and build
+artifacts are proprietary to Triotek Systems Ltd and are not licensed under an
+open-source license.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Use, access, copying, modification, distribution, sublicensing, hosting,
+deployment, and commercial operation are permitted only under:
+- Triotek Systems Ltd platform terms,
+- applicable customer or publisher agreements, and
+- any written authorization issued by Triotek Systems Ltd.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Unless expressly authorized in writing, you may not:
+- redistribute this framework or derivative works,
+- publish source code or bundled artifacts,
+- sublicense or resell the framework,
+- remove ownership, license, or attribution notices.
+
+This repository may contain components, apps, or bundles with separate licenses.
+Those components are governed by their own stated terms where applicable.
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, AND NON-INFRINGEMENT, TO THE MAXIMUM EXTENT PERMITTED BY LAW.
+
+For licensing inquiries and commercial terms:
+Triotek Systems Ltd
+https://triotek.io

@@ -196,7 +196,11 @@ def ensure_plug_scaffold(plug_name: str) -> None:
     readme_path = os.path.join(plug_path, "README.md")
     if not os.path.exists(readme_path):
         with open(readme_path, "w") as readme_file:
-            readme_file.write(f"# {plug_name.title()} Plug\n")
+            readme_file.write(
+                f"# {plug_name.upper()} Bundle\n\n"
+                "This bundle hosts standalone app repositories/scaffolds for 3plug.\n"
+                "License: CUSTOM-PROPRIETARY (Triotek custom terms)\n"
+            )
 
     bundle_meta_path = os.path.join(plug_path, "bundle.json")
     if not os.path.exists(bundle_meta_path):
@@ -208,6 +212,12 @@ def ensure_plug_scaffold(plug_name: str) -> None:
                     "type": "bundle",
                     "status": "draft",
                     "apps_registry": "apps.txt",
+                    "license": {
+                        "id": "CUSTOM-PROPRIETARY",
+                        "type": "proprietary_custom",
+                        "terms_ref": "LICENSE",
+                        "owner": "Triotek Systems Ltd",
+                    },
                 },
                 bundle_meta_file,
                 indent=2,

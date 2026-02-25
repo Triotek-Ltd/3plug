@@ -19,6 +19,7 @@ from ..utils.text import underscore_to_titlecase_main
 from .utils.file_creater import create_files_from_templates
 
 LICENSE_CHOICES = [
+    "CUSTOM-PROPRIETARY",
     "MIT",
     "GPL-3.0",
     "GPL-2.0",
@@ -76,8 +77,8 @@ LICENSE_CHOICES = [
 @click.option(
     "--license",
     type=click.Choice(LICENSE_CHOICES, case_sensitive=False),
-    default="MIT",
-    help="License for the app",
+    default="CUSTOM-PROPRIETARY",
+    help="License for the app (default is 3plug custom proprietary terms)",
     show_default=True,
 )
 def newapp(
@@ -230,6 +231,12 @@ app_license = "{license}"
             "remote": None,
             "branch": "main",
         },
+        "license": {
+            "id": license,
+            "type": "proprietary_custom",
+            "terms_ref": "LICENSE",
+            "owner": publisher,
+        },
     }
     with open(
         os.path.join(temp_app_path, "config", "3plug.app.json"),
@@ -255,6 +262,7 @@ app_license = "{license}"
                     }
                 },
                 "repo": {"standalone": True},
+                "license": {"required": True, "default": license},
                 "bundling": {
                     "manifest": "config/3plug.app.json",
                     "package_formats": ["git_repo"],
@@ -274,6 +282,11 @@ app_license = "{license}"
                 "bundle_id": plug_name,
                 "module_registry": "modules.txt",
                 "config_manifest": "config/3plug.app.json",
+                "license": {
+                    "id": license,
+                    "type": "proprietary_custom",
+                    "terms_ref": "LICENSE",
+                },
             },
             app_file,
             indent=2,
@@ -290,6 +303,7 @@ app_license = "{license}"
             f"bundle_id: {plug_name}\n"
             "version: 0.1.0\n"
             "package_type: git_repo\n"
+            f"license: {license}\n"
             "source:\n"
             "  repo: null\n"
             "  ref: main\n"
@@ -366,33 +380,34 @@ Welcome to **{app_name}**!.
 
 Follow the steps below to get started with **{app_name}**:
 
-1. Get the app:
+1. Get the app (repo URL is required):
 
     ```bash
-    3plug get-app https://github.com/{app_name}/{app_name}.git
+    ./3plug get-app <repo_url> {app_name} --bundle <bundle_name>
     ```
 
 2. Install in site:
 
     ```bash
-    3plug install-app --site [sitename] {app_name}
+    ./3plug install-app --site [sitename] {app_name}
     ```
 
 3. Install dependencies:
 
     ```bash
-    3plug install
+    ./3plug install
     ```
 
 4. Migrate the site:
 
     ```bash
-    3plug migrate --site [sitename]
+    ./3plug migrate --site [sitename]
     ```
 
 ## License
 
-This project is licensed under the terms of the **{license}** license.
+This app is licensed under **{license}** (Triotek custom proprietary terms).
+See the app `LICENSE` file and publisher terms for full conditions.
 
 ## Contributing
 
