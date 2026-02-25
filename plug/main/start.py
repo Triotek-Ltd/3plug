@@ -5,12 +5,15 @@ import subprocess
 import sys
 import threading
 import traceback
+from typing import List, Optional, Tuple
 
 import click
 
 from ..utils.config import PROJECT_ROOT, get_all_sites, get_site_config, write_running_ports
+from ..utils.default_site import get_default_site_info
 from ..utils.initialize_django import initialize_django_env
 from ..utils.run_process import get_python_executable, run_subprocess
+from ..sites.use import set_default_site
 
 
 def find_free_port(start_port=3000):
@@ -61,9 +64,32 @@ def build_site_url(site: str, mode: str, nextjs_port: int) -> str:
     return f"{protocol}://{host}"
 
 
+def _get_current_default_site() -> Optional[str]:
+    return get_default_site_info(PROJECT_ROOT)
+
+
+def _prompt_for_site_choice(sites: List[str]) -> Tuple[Optional[str], bool]:
+    if not sites:
+        raise click.ClickException("No sites available. Create a site first.")
+
+    click.echo("Select site to start:")
+    for idx, site in enumerate(sites, start=1):
+        click.echo(f"{idx}. {site}")
+    click.echo(f"{len(sites) + 1}. all")
+
+    choice = click.prompt("Enter choice number", type=int)
+    if choice == len(sites) + 1:
+        return None, True
+    if 1 <= choice <= len(sites):
+        return sites[choice - 1], False
+    raise click.ClickException("Invalid site selection.")
+
+
 @click.command()
 @click.argument("mode", default="prod")
-def start(mode):
+@click.option("--site", "site_name", default=None, help="Start with a specific site as default.")
+@click.option("--all-sites", is_flag=True, help="Keep current default and show all available site URLs.")
+def start(mode, site_name, all_sites):
     """Start Django and Next.js servers for the specified site."""
     click.echo("Starting server")
 
@@ -82,6 +108,29 @@ def start(mode):
     nextjs_process = None
 
     try:
+        sites = get_all_sites()
+        selected_site = None
+
+        if site_name and site_name not in sites:
+            raise click.ClickException(f"Site '{site_name}' was not found.")
+
+        if not all_sites:
+            if site_name:
+                selected_site = site_name
+            elif mode != "prod":
+                # In dev mode prefer configured default site (expected to be dev-site after setup-dev-env).
+                current_default = _get_current_default_site()
+                if current_default and current_default in sites:
+                    selected_site = current_default
+                elif "dev-site" in sites:
+                    selected_site = "dev-site"
+            else:
+                selected_site, all_sites = _prompt_for_site_choice(sites)
+
+        if selected_site and not all_sites:
+            click.echo(f"Using site '{selected_site}' as default for this start session.")
+            set_default_site(selected_site)
+
         if mode != "prod":
             clear_next_dev_lock(nextjs_path)
 
@@ -153,10 +202,9 @@ def start(mode):
         django_stdout_thread.start()
         django_stderr_thread.start()
 
-        sites = get_all_sites()
-
-        # Generate and display links for all sites
-        for site in sites:
+        # Generate and display links for selected site(s)
+        visible_sites = sites if all_sites or not selected_site else [selected_site]
+        for site in visible_sites:
             if site:
                 click.echo(
                     click.style(

@@ -1,12 +1,19 @@
 import path from "path";
 import fs from "fs";
-import modelsData from "/sites/doctypes.json";
 
 // Define the root path for apps
 const basePath = path.join(process.cwd(), "..", "..");
+const doctypeConfigPath = path.join(basePath, "sites", "doctypes.json");
 
 export default async function handler(req, res) {
   const { name } = req.query;
+  let modelsData = [];
+
+  try {
+    modelsData = JSON.parse(fs.readFileSync(doctypeConfigPath, "utf-8"));
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to load doctypes.json" });
+  }
 
   // Iterate through the models data to find the app, module, and doc that matches
   for (const app of modelsData) {

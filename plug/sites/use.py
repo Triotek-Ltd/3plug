@@ -38,7 +38,7 @@ def set_default_site(site_name: str) -> None:
     """
     sites = load_sites()
 
-    if not sites:
+    if sites is None:
         return  # Exit early if no sites were loaded
 
     # Find the site by site_name

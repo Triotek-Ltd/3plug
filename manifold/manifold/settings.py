@@ -307,16 +307,19 @@ for site_folder in os.listdir(SITE_PATH):
         except json.JSONDecodeError:
             pass
 
-# Set the default database configuration
+# Set the default database configuration (Django requires the alias name "default")
 if default_site in DATABASES:
-    default_database = DATABASES.pop(default_site)
-    DATABASES = {default_site: default_database, **DATABASES}
+    selected_default_database = DATABASES[default_site]
+    DATABASES = {
+        "default": selected_default_database,
+        **DATABASES,
+    }
 else:
     DATABASES = {
-        default_site: {
+        "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": os.path.join(BASE_DIR, "db.sqlite3"),  # Use os.path.join
-        }, 
+        },
         **DATABASES
     }
 

@@ -1,4 +1,29 @@
-import appsConfig from "../../sites/doctypes.json"; // Import doctypes.json
+let appsConfigCache = [];
+let appsConfigLoading = null;
+
+const loadDoctypesConfig = async () => {
+  if (appsConfigLoading) return appsConfigLoading;
+
+  appsConfigLoading = fetch("/api/loadDoctypes")
+    .then((res) => {
+      if (!res.ok) throw new Error("doctypes.json not found");
+      return res.json();
+    })
+    .then((data) => {
+      appsConfigCache = Array.isArray(data) ? data : [];
+      return appsConfigCache;
+    })
+    .catch((error) => {
+      console.warn("Unable to load doctypes config", error);
+      appsConfigCache = [];
+      return appsConfigCache;
+    });
+  return appsConfigLoading;
+};
+
+if (typeof window !== "undefined") {
+  loadDoctypesConfig();
+}
 
 export const getSiteConfigByHostname = async () => {
   if (typeof window === "undefined") return null;
@@ -20,8 +45,10 @@ export const getSiteConfigByHostname = async () => {
 const isValidId = (id) => id && !id.startsWith("__");
 
 // Function to extract all installed apps and associated modules
-export const generateSidebarData = () => {
-  const installedApps = getSiteConfigByHostname().installed_apps || []; // Extract installed apps
+export const generateSidebarData = async () => {
+  const appsConfig = await loadDoctypesConfig();
+  const siteConfig = await getSiteConfigByHostname();
+  const installedApps = siteConfig?.installed_apps || []; // Extract installed apps
   const apps = [];
   const modules = [];
 
@@ -55,12 +82,13 @@ export const generateSidebarData = () => {
   return {
     apps,
     modules,
-    developerMode: getSiteConfigByHostname()?.developer_mode,
+    developerMode: siteConfig?.developer_mode,
   };
 };
 
 // Function to get modules of a specific app
 export const getModulesByApp = (appId) => {
+  const appsConfig = appsConfigCache;
   if (!isValidId(appId)) return []; // Skip if appId is invalid
 
   const appData = appsConfig.find((app) => app.id === appId);
@@ -79,6 +107,7 @@ export const getModulesByApp = (appId) => {
 
 // Function to get documents of a specific module or app
 export const getDocsByModuleOrApp = (appId, moduleId = null) => {
+  const appsConfig = appsConfigCache;
   if (!isValidId(appId)) return []; // Skip if appId is invalid
 
   const appData = appsConfig.find((app) => app.id === appId);
@@ -111,6 +140,7 @@ export const getDocsByModuleOrApp = (appId, moduleId = null) => {
 
 // Function to get documents by moduleId across all apps
 export const getDocsByModule = (moduleId) => {
+  const appsConfig = appsConfigCache;
   if (!isValidId(moduleId)) return []; // Skip if moduleId is invalid
 
   const docs = [];
@@ -143,6 +173,7 @@ export const getDocsByModule = (moduleId) => {
 
 // New function to get document details by ID or name
 export const getDocDetail = (identifier) => {
+  const appsConfig = appsConfigCache;
   for (const app of appsConfig) {
     for (const module1 of app.modules || []) {
       const doc = module1.docs.find(

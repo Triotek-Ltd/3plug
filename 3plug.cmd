@@ -6,6 +6,7 @@ set "CMD_NAME=%~1"
 
 if /I "%CMD_NAME%"=="setup" goto :bootstrap
 if /I "%CMD_NAME%"=="init" goto :bootstrap
+if /I "%CMD_NAME%"=="setup-dev-env" goto :bootstrap
 
 if exist "%ROOT_DIR%env\Scripts\3plug.exe" (
   "%ROOT_DIR%env\Scripts\3plug.exe" %*

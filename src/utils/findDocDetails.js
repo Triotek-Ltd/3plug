@@ -1,8 +1,35 @@
-import doctypesData from "../../sites/doctypes.json"; // Directly import the JSON file
+let doctypesCache = [];
+let doctypesLoading = null;
+
+const loadDoctypesData = async () => {
+  if (doctypesLoading) return doctypesLoading;
+  doctypesLoading = fetch("/api/loadDoctypes")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to load doctypes data");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      doctypesCache = Array.isArray(data) ? data : [];
+      return doctypesCache;
+    })
+    .catch((error) => {
+      console.error("Error loading doctypes cache:", error);
+      doctypesCache = [];
+      return doctypesCache;
+    });
+  return doctypesLoading;
+};
+
+if (typeof window !== "undefined") {
+  loadDoctypesData();
+}
 
 // Utility function to find document details and simulate the logic from the original handler
 export const findDocDetails = (slug, type = "doctype") => {
   try {
+    const doctypesData = doctypesCache;
     // Iterate over the doctypesData (doctypes.json content)
     for (const app of doctypesData) {
       for (const module1 of app.modules) {
@@ -52,6 +79,7 @@ export const findDocDetails = (slug, type = "doctype") => {
 
 // Example usage for the function (would typically be inside a Next.js page component)
 export const getDocDetails = async (slug) => {
+  await loadDoctypesData();
   const docDetails = findDocDetails(slug);
   if (docDetails) {
     // Handle the found document details (for example, return or render)

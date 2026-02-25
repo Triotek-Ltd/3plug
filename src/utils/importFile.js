@@ -1,8 +1,15 @@
-import doctypesData from "../../sites/doctypes.json";
+const getDoctypesData = async () => {
+  const response = await fetch("/api/loadDoctypes");
+  if (!response.ok) {
+    throw new Error("Failed to load /sites/doctypes.json");
+  }
+  return response.json();
+};
 
 // Utility function to find the document details from doctypes.json data
 export const importFile = async (name, filename, type = "doctype") => {
   try {
+    const doctypesData = await getDoctypesData();
     // Iterate over the doctypesData (doctypes.json content)
     for (const app of doctypesData) {
       for (const module1 of app.modules) {

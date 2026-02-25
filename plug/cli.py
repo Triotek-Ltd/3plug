@@ -69,6 +69,7 @@ cli.add_command(django)
 
 cli.add_command(init)
 cli.add_command(setup)
+cli.add_command(setup_dev_env, name="setup-dev-env")
 cli.add_command(start)
 cli.add_command(build)
 cli.add_command(deploy, name="deploy")

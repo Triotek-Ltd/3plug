@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CMD_NAME="${1:-}"
 
-if [[ "$CMD_NAME" == "setup" || "$CMD_NAME" == "init" ]]; then
+if [[ "$CMD_NAME" == "setup" || "$CMD_NAME" == "init" || "$CMD_NAME" == "setup-dev-env" ]]; then
   if [[ ! -x "$ROOT_DIR/env/Scripts/python.exe" ]]; then
     echo "Bootstrapping local virtual environment at env..."
     (cd "$ROOT_DIR" && python -m venv env)
