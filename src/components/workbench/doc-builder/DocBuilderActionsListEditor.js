@@ -18,6 +18,16 @@ const ACTION_KIND_OPTIONS = [
   { label: "UI Action", value: "ui" },
 ];
 
+const STANDARD_RUNTIME_ACTIONS = [
+  { id: "list", label: "List", method: "GET", kind: "ui", enabled: true },
+  { id: "view", label: "View", method: "GET", kind: "ui", enabled: true },
+  { id: "new", label: "New", method: "GET", kind: "ui", enabled: true },
+  { id: "create", label: "Create", method: "POST", kind: "server", enabled: true },
+  { id: "edit", label: "Edit", method: "GET", kind: "ui", enabled: true },
+  { id: "update", label: "Update", method: "PATCH", kind: "server", enabled: true },
+  { id: "delete", label: "Delete", method: "DELETE", kind: "server", enabled: true },
+];
+
 function normalizeAction(action = {}, index = 0) {
   return {
     id: action.id || `action_${index + 1}`,
@@ -45,11 +55,29 @@ export default function DocBuilderActionsListEditor({ actions = [], onChange }) 
     onChange?.(rows.filter((_, i) => i !== index));
   };
 
+  const mergeStandardRuntimeActions = () => {
+    const byId = new Map(rows.map((row, index) => [String(row.id || "").trim() || `row_${index}`, row]));
+    STANDARD_RUNTIME_ACTIONS.forEach((preset, index) => {
+      const key = preset.id;
+      if (!byId.has(key)) {
+        byId.set(key, normalizeAction(preset, rows.length + index));
+      }
+    });
+    onChange?.(Array.from(byId.values()));
+  };
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-3">
       <div className="mb-2 flex items-center justify-between">
         <div className="text-xs uppercase tracking-[0.12em] text-slate-500">Actions List</div>
-        <PrimaryButton text="Add Action" onClick={addRow} className="!px-3 !py-2 !text-xs" />
+        <div className="flex items-center gap-2">
+          <SecondaryButton
+            text="Add Runtime Defaults"
+            onClick={mergeStandardRuntimeActions}
+            className="!px-3 !py-2 !text-xs"
+          />
+          <PrimaryButton text="Add Action" onClick={addRow} className="!px-3 !py-2 !text-xs" />
+        </div>
       </div>
 
       <div className="max-h-[360px] overflow-auto space-y-3">
@@ -111,7 +139,7 @@ export default function DocBuilderActionsListEditor({ actions = [], onChange }) 
         ))}
         {!rows.length ? (
           <div className="rounded-lg border border-dashed border-slate-300 bg-white px-3 py-4 text-sm text-slate-600">
-            No actions yet. Add an action to define runtime behavior in `actions.json`.
+            No actions yet. Add runtime defaults first, then customize additional actions in `actions.json`.
           </div>
         ) : null}
       </div>

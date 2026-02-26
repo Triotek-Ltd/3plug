@@ -1,5 +1,10 @@
-import FormBuilderDeskWorkspace from "@/components/workbench/FormBuilderDeskWorkspace";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
-export default function FormBuilderDeskPage() {
-  return <FormBuilderDeskWorkspace />;
+export default function FormBuilderDeskRedirectPage() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/workbench/form-builder");
+  }, [router]);
+  return null;
 }

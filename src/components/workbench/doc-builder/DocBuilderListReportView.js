@@ -3,6 +3,13 @@ import TableTemplate from "@/components/pages/list/TableTemplate";
 import CheckField from "@/components/fields/CheckField";
 import SelectField from "@/components/fields/SelectField";
 import TextField from "@/components/fields/TextField";
+import SecondaryButton from "@/components/core/common/buttons/Secondary";
+
+const LIST_RUNTIME_DEFAULTS = {
+  sort_order: "desc",
+  page_size: 20,
+  allow_report_view: true,
+};
 
 export default function DocBuilderListReportView({
   listPreviewTableConfig,
@@ -29,11 +36,41 @@ export default function DocBuilderListReportView({
     );
   };
 
+  const applyRuntimeListDefaults = () => {
+    onDocConfigChange?.((doc) => ({
+      ...doc,
+      list_report: {
+        ...LIST_RUNTIME_DEFAULTS,
+        ...(doc.list_report || {}),
+      },
+    }));
+    onSchemaFieldsChange?.((fields) =>
+      fields.map((field, index) => {
+        if (String(field.fieldtype || "").includes("Break")) return field;
+        if (index < 5) {
+          return {
+            ...field,
+            in_list_view: field.in_list_view ?? 1,
+            in_standard_filter: field.in_standard_filter ?? (index < 3 ? 1 : 0),
+          };
+        }
+        return field;
+      })
+    );
+  };
+
   return (
     <WorkspacePanel
       title="List / Report Builder"
       description="Edit list/report flags and preview using the existing list table stack driven by the selected doc schema."
     >
+      <div className="mb-3 flex items-center justify-end">
+        <SecondaryButton
+          text="Apply Runtime List Defaults"
+          onClick={applyRuntimeListDefaults}
+          className="!px-3 !py-2 !text-xs"
+        />
+      </div>
       <div className="mb-4 rounded-xl border border-slate-200 bg-white p-3">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <SelectField
@@ -80,6 +117,20 @@ export default function DocBuilderListReportView({
               }))
             }
             placeholder="fieldname"
+          />
+          <TextField
+            label="Page Size"
+            value={String(listConfig.page_size || 20)}
+            onChange={(e) =>
+              onDocConfigChange?.((doc) => ({
+                ...doc,
+                list_report: {
+                  ...(doc.list_report || {}),
+                  page_size: Number(e.target.value) || 20,
+                },
+              }))
+            }
+            placeholder="20"
           />
         </div>
       </div>

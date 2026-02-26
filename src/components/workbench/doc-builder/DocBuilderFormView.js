@@ -2,6 +2,14 @@ import WorkspacePanel from "@/components/workspace/layout/WorkspacePanel";
 import FieldRenderer from "@/components/pages/form/FieldRenderer";
 import TextField from "@/components/fields/TextField";
 import CheckField from "@/components/fields/CheckField";
+import SecondaryButton from "@/components/core/common/buttons/Secondary";
+
+const RUNTIME_FORM_FIELD_DEFAULTS = {
+  in_list_view: 0,
+  in_standard_filter: 0,
+  hidden: 0,
+  read_only: 0,
+};
 
 export default function DocBuilderFormView({
   schemaFields,
@@ -20,6 +28,15 @@ export default function DocBuilderFormView({
     );
   };
 
+  const applyRuntimeFormDefaults = () => {
+    onSchemaFieldsChange?.((fields) =>
+      fields.map((field) => {
+        if (String(field.fieldtype || "").includes("Break")) return field;
+        return { ...RUNTIME_FORM_FIELD_DEFAULTS, ...field };
+      })
+    );
+  };
+
   return (
     <WorkspacePanel
       title="Form Builder Preview"
@@ -27,6 +44,13 @@ export default function DocBuilderFormView({
     >
       {editableFields.length ? (
         <div className="space-y-4">
+          <div className="flex items-center justify-end">
+            <SecondaryButton
+              text="Apply Runtime Form Defaults"
+              onClick={applyRuntimeFormDefaults}
+              className="!px-3 !py-2 !text-xs"
+            />
+          </div>
           <div className="rounded-xl border border-slate-200 bg-white p-3">
             <div className="mb-2 text-xs uppercase tracking-[0.12em] text-slate-500">Field Properties (Schema)</div>
             <div className="max-h-[260px] overflow-auto">
