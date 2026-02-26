@@ -34,7 +34,8 @@ const TableTemplate = ({
   const { openModal } = useModal();
   const { setLoading } = useData();
 
-  const { localAppData } = useConfig();
+  const configContext = useConfig() || {};
+  const { localAppData } = configContext;
 
   const endpoint = localAppData?.endpoint;
   const router = useRouter();

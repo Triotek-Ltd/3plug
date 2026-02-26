@@ -16,18 +16,51 @@ import Loader from "@/components/core/common/Loader";
 import ContextConfirmationModal from "@/components/core/common/modal/ContextModal";
 import AppProviders from "@/contexts/AppProviders";
 import DynamicHead from "@/components/core/common/DynamicHead";
+import DirectionTogglePill from "@/components/core/common/DirectionTogglePill";
 import { useUiDirection } from "@/contexts/UiDirectionContext";
 
 Modal.setAppElement("#__next");
 
+function ToastCloseButton({ closeToast }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        closeToast?.(e);
+      }}
+      className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white/90 hover:bg-black/10 hover:text-white"
+      aria-label="Close notification"
+    >
+      ×
+    </button>
+  );
+}
+
 const PUBLIC_ROUTES = new Set([
   "/",
   "/platform",
+  "/workbench/doc-builder",
+  "/workbench/list-report-builder",
+  "/workbench/form-builder",
+  "/workbench/form-builder-desk",
+  "/workbench/actions-builder",
+  "/workbench/print-format-builder",
+  "/workbench/chart-builder",
+  "/workbench/dashboard-builder",
+  "/workbench/page-builder",
   "/solutions",
   "/deployments/cloud",
   "/deployments/local",
   "/apps",
   "/publishers",
+]);
+
+const AUTH_ROUTES = new Set([
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/otp-verification",
 ]);
 
 export default function App({ Component, pageProps }) {
@@ -55,13 +88,9 @@ export default function App({ Component, pageProps }) {
         const isApiRoute = router.pathname.startsWith("/apis");
         const isPublicRoute = PUBLIC_ROUTES.has(router.pathname);
 
-        if (
-          !isApiRoute &&
-          !isPublicRoute &&
-          router.pathname !== "/login" &&
-          router.pathname !== "/signup" &&
-          router.pathname !== "/admin"
-        ) {
+        const isAuthRoute = AUTH_ROUTES.has(router.pathname);
+
+        if (!isApiRoute && !isPublicRoute && !isAuthRoute && router.pathname !== "/admin") {
           router.push("/login");
         }
       }
@@ -69,28 +98,43 @@ export default function App({ Component, pageProps }) {
 
     checkAuth();
     setIsClient(true);
-  }, []);
+  }, [router.pathname]);
 
   if (!isClient) {
     return <Loading />;
   }
 
-  const isAuthPage =
-    router.pathname === "/login" || router.pathname === "/signup";
+  const isAuthPage = AUTH_ROUTES.has(router.pathname);
   const isPublicPage = PUBLIC_ROUTES.has(router.pathname);
   const useAppShell = !isAuthPage && !isPublicPage;
 
   return (
     <>
       <AppProviders>
-        <AppFrame Component={Component} pageProps={pageProps} isClient={isClient} isPublicPage={isPublicPage} isAuthPage={isAuthPage} useAppShell={useAppShell} />
+        <AppFrame
+          Component={Component}
+          pageProps={pageProps}
+          isClient={isClient}
+          isAuthenticated={isAuthenticated}
+          isPublicPage={isPublicPage}
+          isAuthPage={isAuthPage}
+          useAppShell={useAppShell}
+        />
       </AppProviders>
     </>
   );
 }
 
-function AppFrame({ Component, pageProps, isPublicPage, isAuthPage, useAppShell }) {
-  const { dir } = useUiDirection();
+function AppFrame({
+  Component,
+  pageProps,
+  isAuthenticated,
+  isPublicPage,
+  isAuthPage,
+  useAppShell,
+}) {
+  const router = useRouter();
+  const { dir, toggleDir } = useUiDirection();
   const isRtl = dir === "rtl";
 
   useEffect(() => {
@@ -146,6 +190,11 @@ function AppFrame({ Component, pageProps, isPublicPage, isAuthPage, useAppShell 
             position="bottom-right"
             autoClose={3500}
             toastClassName="brand-toast"
+            closeButton={ToastCloseButton}
+            closeOnClick={false}
+            pauseOnHover={true}
+            draggable={true}
+            newestOnTop={true}
           />
           {/* Fixed Navbar */}
           {useAppShell && (
@@ -165,8 +214,10 @@ function AppFrame({ Component, pageProps, isPublicPage, isAuthPage, useAppShell 
                 : "flex min-h-screen flex-col items-center justify-start md:justify-center"
             }`}
           >
-            {isPublicPage ? (
-              <Component {...pageProps} />
+            {!isPublicPage && !isAuthPage && !isAuthenticated ? (
+              <Loading />
+            ) : isPublicPage ? (
+              <Component key={router.asPath} {...pageProps} />
             ) : (
             <div
               data-app-shell-dir={dir}
@@ -177,7 +228,7 @@ function AppFrame({ Component, pageProps, isPublicPage, isAuthPage, useAppShell 
               {isAuthPage ? (
                 <div className="flex-grow overflow-y-auto">
                   <div className="relative flex-grow">
-                    <Component {...pageProps} />
+                    <Component key={router.asPath} {...pageProps} />
                   </div>
                 </div>
               ) : (
@@ -188,7 +239,7 @@ function AppFrame({ Component, pageProps, isPublicPage, isAuthPage, useAppShell 
                   <div data-app-shell-slot="content" className="flex-1 flex flex-col w-full min-w-0">
                     <div className="flex-grow min-h-0 md:h-[88vh] pt-0 overflow-y-auto">
                       <div className="relative flex-grow">
-                        <Component {...pageProps} />
+                        <Component key={router.asPath} {...pageProps} />
                       </div>
                     </div>
                     <Footer />{" "}
@@ -200,6 +251,7 @@ function AppFrame({ Component, pageProps, isPublicPage, isAuthPage, useAppShell 
           </main>
           <Loader />
           <ContextConfirmationModal />
+          {useAppShell ? <DirectionTogglePill dirMode={dir} onToggle={toggleDir} /> : null}
           {/* <div id="dropdown-root"></div> */}
         </div>
     </>

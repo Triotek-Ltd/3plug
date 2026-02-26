@@ -64,6 +64,21 @@ body {
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(21, 88, 116, 0.25);
 }
+
+.Toastify__toast-container {
+  z-index: 100000 !important;
+  pointer-events: none;
+}
+
+.Toastify__toast-container .Toastify__toast {
+  pointer-events: auto;
+}
+
+.Toastify__toast .Toastify__close-button {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
 /* Width */
 ::-webkit-scrollbar {
   width: 5px; /* Slightly thinner scrollbar */

@@ -7,6 +7,9 @@ const DataField = ({
   hidden,
   type,
   required = false,
+  className = "",
+  onFocus,
+  onBlur,
 }) => {
   return (
     <input
@@ -18,7 +21,9 @@ const DataField = ({
       placeholder={placeholder}
       hidden={hidden}
       required={required}
-      className="px-1 w-full focus:outline-none focus:ring-0 focus:border-none"
+      onFocus={onFocus}
+      onBlur={onBlur}
+      className={`px-1 w-full focus:outline-none focus:ring-0 focus:border-none ${className}`}
     />
   );
 };

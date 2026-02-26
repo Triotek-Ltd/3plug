@@ -36,6 +36,18 @@ const SidebarList = ({ icon, text, link, permission }) => {
     setIsHovered(false);
   };
 
+  const handleSidebarNavigation = (e) => {
+    if (!link) return;
+    if (e.defaultPrevented) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (e.button !== 0) return;
+
+    e.preventDefault();
+    if (typeof window !== "undefined") {
+      window.location.assign(link);
+    }
+  };
+
   // Check if permission is granted
   const hasPermission = () => {
     if (!permission) {
@@ -72,6 +84,7 @@ const SidebarList = ({ icon, text, link, permission }) => {
         }`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onClick={handleSidebarNavigation}
       >
         <div
           className={`${isRtl ? "ml-2" : "mr-2"} flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 ${

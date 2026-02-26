@@ -432,6 +432,22 @@ export const login = async (formData = {}) => {
   });
 };
 
+export const signup = async (formData = {}) => {
+  const tenant = getTenant();
+  return handleApiRequest("signup", formData, {
+    "Content-Type": "application/json",
+    "X-Tenant": tenant,
+  });
+};
+
+export const forgotPassword = async (formData = {}) => {
+  const tenant = getTenant();
+  return handleApiRequest("forgot-password", formData, {
+    "Content-Type": "application/json",
+    "X-Tenant": tenant,
+  });
+};
+
 export const validateOtp = async (formData = {}) => {
   const tenant = getTenant();
   return handleApiRequest("otp/activate", formData, {

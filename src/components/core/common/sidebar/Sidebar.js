@@ -17,18 +17,16 @@ import {
   faFileInvoice,
   faBox,
   faChartBar,
-  faTruckPickup,
   faTruckLoading,
   faDriversLicense,
-  faCar,
-  faCartShopping,
-  faPerson,
-  faQuoteLeft,
   faMoneyBillTransfer,
   faBell,
+  faHeadset,
   faSailboat,
-  faUserGroup,
   faUserCheck,
+  faShieldHalved,
+  faGlobe,
+  faFlask,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -53,6 +51,14 @@ const Sidebar = () => {
   const companyName =
     websiteSettings?.site_title || websiteSettings?.app_name || "3plug";
   const companyLogo = websiteSettings?.app_logo || "/brand/logo-3plug.png";
+  const isHomeRoute = router.pathname === "/home";
+  const isLauncherRoute = router.pathname === "/launcher";
+  const isAccountRoute = router.pathname.startsWith("/account");
+  const isAdminRoute = router.pathname === "/admin" || router.pathname.startsWith("/admin/");
+  const isPublisherRoute = router.pathname === "/publisher" || router.pathname.startsWith("/publisher/");
+  const isPlatformRoute = router.pathname === "/platform" || router.pathname.startsWith("/platform/");
+  const isWorkbenchRoute = router.pathname.startsWith("/workbench/");
+  const isWorkspaceEntryRoute = isHomeRoute || isLauncherRoute;
 
   useEffect(() => {
     const handleResize = () => {
@@ -93,6 +99,48 @@ const Sidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  const accountNavItems = [
+    { icon: faUser, text: "Account Setup", link: "/account/setup" },
+    { icon: faUserCheck, text: "Access", link: "/account/access" },
+    { icon: faShieldHalved, text: "Security", link: "/account/access?panel=security" },
+    { icon: faCashRegister, text: "Billing", link: "/account/billing" },
+    { icon: faGlobe, text: "Localization", link: "/account/localization" },
+  ];
+  const workspaceNavItems = [
+    { icon: faDashboard, text: "Home", link: "/home" },
+    { icon: faBox, text: "Launcher", link: "/launcher" },
+    { icon: faUser, text: "Account", link: "/account/setup" },
+    { icon: faSailboat, text: "Publisher", link: "/publisher" },
+    { icon: faChartBar, text: "Admin", link: "/admin" },
+    { icon: faFlask, text: "Workbench", link: "/workbench/doc-builder" },
+  ];
+  const workbenchNavItems = [
+    { icon: faFlask, text: "Doc Builder", link: "/workbench/doc-builder" },
+    { icon: faBookOpen, text: "List / Report", link: "/workbench/list-report-builder" },
+    { icon: faTools, text: "Form Builder", link: "/workbench/form-builder-desk" },
+    { icon: faShieldHalved, text: "Actions / Permissions", link: "/workbench/actions-builder" },
+    { icon: faFileInvoice, text: "Print Format", link: "/workbench/print-format-builder" },
+    { icon: faChartBar, text: "Chart Builder", link: "/workbench/chart-builder" },
+    { icon: faDashboard, text: "Dashboard Builder", link: "/workbench/dashboard-builder" },
+    { icon: faBook, text: "Page Builder", link: "/workbench/page-builder" },
+  ];
+  const adminNavItems = [
+    { icon: faDashboard, text: "Admin Overview", link: "/admin" },
+    { icon: faDiagnoses, text: "Platform Monitoring", link: "/admin/platform-monitoring" },
+    { icon: faBookOpen, text: "Logs & Audit", link: "/admin/logs-audit" },
+    { icon: faDriversLicense, text: "License Monitoring", link: "/admin/license-monitoring" },
+    { icon: faBell, text: "Announcements", link: "/admin/announcements" },
+    { icon: faChartBar, text: "Landing Analytics", link: "/admin/landing-analytics" },
+  ];
+  const publisherNavItems = [
+    { icon: faSailboat, text: "Publisher Overview", link: "/publisher" },
+    { icon: faBox, text: "Apps", link: "/publisher/apps" },
+    { icon: faTruckLoading, text: "Deployments", link: "/publisher/deployments" },
+    { icon: faMoneyBillTransfer, text: "Revenue", link: "/publisher/revenue" },
+    { icon: faTools, text: "Integrations", link: "/publisher/integrations" },
+    { icon: faHeadset, text: "Support", link: "/publisher/support" },
+  ];
+
   return (
     <>
       {!isCollapsed && (
@@ -132,18 +180,15 @@ const Sidebar = () => {
             !isCollapsed ? "fixed md:relative" : "hidden"
           }`}
         >
-          <div className={`h-fit flex items-center ${isRtl ? "justify-end" : "justify-start"} gap-2 px-3`}>
-            <Link
-              href={`/${pageInfo?.link}` || "/"}
-              className="block py-2 m-0 text-sm text-slate-700"
-            >
-              <div className={`flex flex-col ${isRtl ? "items-end text-right" : "items-start text-left"} gap-1 transition-all duration-200 ease-nav-brand`}>
+          <div className={`h-fit flex items-center ${isRtl ? "justify-end" : "justify-start"} gap-2 px-3 py-1`}>
+            <Link href="/home" className="block py-2 m-0 text-sm text-slate-700">
+              <div className={`flex items-center ${isRtl ? "flex-row-reverse text-right" : "flex-row text-left"} gap-2 transition-all duration-200 ease-nav-brand`}>
                 <img
                   src={companyLogo}
                   alt="Company Logo"
-                  className={`h-[150px] w-auto max-w-[180px] object-contain ${isRtl ? "object-right" : "object-left"}`}
+                  className="h-6 w-6 rounded-md object-cover shrink-0"
                 />
-                <span className={`font-semibold text-sm ${isRtl ? "text-right" : "text-left"}`}>
+                <span className={`font-semibold text-xs leading-tight ${isRtl ? "text-right" : "text-left"}`}>
                   {companyName}
                 </span>
               </div>
@@ -184,38 +229,93 @@ const Sidebar = () => {
                 />
               ))}
 
-              <li className={`w-full mb-2 mt-6 ${isRtl ? "pl-2" : "pr-2"}`}>
-                <h6 className={`${isRtl ? "pr-3 mr-2 text-right" : "pl-3 ml-2 text-left"} text-xs font-bold leading-tight uppercase opacity-60`}>
-                  Admin
-                </h6>
-              </li>
-              <SidebarList
-                icon={faUser}
-                text="Profile"
-                link="/profile"
-                active={dashboardText === "Profile"}
-              />
-              <SidebarList
-                icon={faUserFriends}
-                text="Users"
-                link="/app/user"
-                permission="view_user"
-                active={dashboardText === "User"}
-              />
-              <SidebarList
-                icon={faCogs}
-                text="Rolegroup"
-                link="/app/group"
-                permission="view_rolegroup"
-                active={dashboardText === "Group"}
-              />
-              <SidebarList
-                icon={faDiagnoses}
-                text="Permissions"
-                link="/app/permission"
-                permission="view_permission"
-                active={dashboardText === "Permission"}
-              />
+              {isAccountRoute ? (
+                <>
+                  <li className={`w-full mb-2 mt-6 ${isRtl ? "pl-2" : "pr-2"}`}>
+                    <h6 className={`${isRtl ? "pr-3 mr-2 text-right" : "pl-3 ml-2 text-left"} text-xs font-bold leading-tight uppercase opacity-60`}>
+                      Account
+                    </h6>
+                  </li>
+                  {accountNavItems.map((item) => (
+                    <SidebarList key={item.link} icon={item.icon} text={item.text} link={item.link} />
+                  ))}
+                </>
+              ) : isWorkspaceEntryRoute || isPlatformRoute ? (
+                <>
+                  <li className={`w-full mb-2 mt-6 ${isRtl ? "pl-2" : "pr-2"}`}>
+                    <h6 className={`${isRtl ? "pr-3 mr-2 text-right" : "pl-3 ml-2 text-left"} text-xs font-bold leading-tight uppercase opacity-60`}>
+                      Workspace
+                    </h6>
+                  </li>
+                  {workspaceNavItems.map((item) => (
+                    <SidebarList key={item.link} icon={item.icon} text={item.text} link={item.link} />
+                  ))}
+                </>
+              ) : isWorkbenchRoute ? (
+                <>
+                  <li className={`w-full mb-2 mt-6 ${isRtl ? "pl-2" : "pr-2"}`}>
+                    <h6 className={`${isRtl ? "pr-3 mr-2 text-right" : "pl-3 ml-2 text-left"} text-xs font-bold leading-tight uppercase opacity-60`}>
+                      Workbench
+                    </h6>
+                  </li>
+                  {workbenchNavItems.map((item) => (
+                    <SidebarList key={item.link} icon={item.icon} text={item.text} link={item.link} />
+                  ))}
+                </>
+              ) : isAdminRoute ? (
+                <>
+                  <li className={`w-full mb-2 mt-6 ${isRtl ? "pl-2" : "pr-2"}`}>
+                    <h6 className={`${isRtl ? "pr-3 mr-2 text-right" : "pl-3 ml-2 text-left"} text-xs font-bold leading-tight uppercase opacity-60`}>
+                      Admin
+                    </h6>
+                  </li>
+                  {adminNavItems.map((item) => (
+                    <SidebarList key={item.link} icon={item.icon} text={item.text} link={item.link} />
+                  ))}
+                </>
+              ) : isPublisherRoute ? (
+                <>
+                  <li className={`w-full mb-2 mt-6 ${isRtl ? "pl-2" : "pr-2"}`}>
+                    <h6 className={`${isRtl ? "pr-3 mr-2 text-right" : "pl-3 ml-2 text-left"} text-xs font-bold leading-tight uppercase opacity-60`}>
+                      Publisher
+                    </h6>
+                  </li>
+                  {publisherNavItems.map((item) => (
+                    <SidebarList key={item.link} icon={item.icon} text={item.text} link={item.link} />
+                  ))}
+                </>
+              ) : (
+                <>
+                  <li className={`w-full mb-2 mt-6 ${isRtl ? "pl-2" : "pr-2"}`}>
+                    <h6 className={`${isRtl ? "pr-3 mr-2 text-right" : "pl-3 ml-2 text-left"} text-xs font-bold leading-tight uppercase opacity-60`}>
+                      Admin
+                    </h6>
+                  </li>
+                  <SidebarList
+                    icon={faUser}
+                    text="Account Setup"
+                    link="/account/setup"
+                  />
+                  <SidebarList
+                    icon={faUserFriends}
+                    text="Users"
+                    link="/app/user"
+                    permission="view_user"
+                  />
+                  <SidebarList
+                    icon={faCogs}
+                    text="Rolegroup"
+                    link="/app/group"
+                    permission="view_rolegroup"
+                  />
+                  <SidebarList
+                    icon={faDiagnoses}
+                    text="Permissions"
+                    link="/app/permission"
+                    permission="view_permission"
+                  />
+                </>
+              )}
 
               <Documentation />
             </ul>

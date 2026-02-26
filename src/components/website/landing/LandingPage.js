@@ -1,5 +1,6 @@
 ﻿import Link from "next/link";
 import { useEffect, useState } from "react";
+import DirectionTogglePill from "@/components/core/common/DirectionTogglePill";
 
 import BrandLogo from "./BrandLogo";
 import { benchmarkMedia, faqs, featureRows, pricingCards, testimonials } from "./data";
@@ -518,18 +519,6 @@ function BackToTop({ visible }) {
   );
 }
 
-function DirToggle({ dirMode, onToggle }) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className="fixed right-2 top-[40%] z-30 -rotate-90 rounded-t-md bg-white px-3 py-1 font-bold shadow-md"
-    >
-      {dirMode === "ltr" ? "RTL" : "LTR"}
-    </button>
-  );
-}
-
 export default function LandingPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showTop, setShowTop] = useState(false);
@@ -558,7 +547,7 @@ export default function LandingPage() {
       <Footer />
       {showCookie ? <CookiePopup onClose={() => setShowCookie(false)} /> : null}
       <BackToTop visible={showTop} />
-      <DirToggle dirMode={dirMode} onToggle={() => setDirMode((v) => (v === "ltr" ? "rtl" : "ltr"))} />
+      <DirectionTogglePill dirMode={dirMode} onToggle={() => setDirMode((v) => (v === "ltr" ? "rtl" : "ltr"))} />
     </div>
   );
 }

@@ -10,6 +10,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const baseStyle = "flex items-center text-slate-800";
 
+const buildToastOptions = (position, progressClassName, autoClose = 3000) => ({
+  autoClose,
+  hideProgressBar: false,
+  progressClassName,
+  position,
+  toastClassName: "wide-toast",
+  closeButton: true,
+  closeOnClick: false,
+  pauseOnHover: true,
+  draggable: true,
+});
+
 const ToastTemplates = {
   success: (message, title = "Success!", position = "bottom-right") =>
     toast(
@@ -23,13 +35,7 @@ const ToastTemplates = {
           <p className="text-sm">{message}</p>
         </div>
       </div>,
-      {
-        autoClose: 3000,
-        hideProgressBar: false,
-        progressClassName: "bg-green-300",
-        position: position,
-        toastClassName: "wide-toast", // Apply custom class for width
-      }
+      buildToastOptions(position, "bg-green-300", 3000)
     ),
 
   error: (message, title = "Error!", position = "top-center") =>
@@ -44,13 +50,7 @@ const ToastTemplates = {
           <p className="text-sm">{message}</p>
         </div>
       </div>,
-      {
-        autoClose: false, // Stay on screen until dismissed
-        hideProgressBar: false, // Show progress bar even if it's static
-        progressClassName: "bg-red-300",
-        position: position,
-        toastClassName: "wide-toast", // Apply custom class for width
-      }
+      buildToastOptions(position, "bg-red-300", false)
     ),
 
   warning: (message, title = "Warning!", position = "bottom-right") =>
@@ -65,13 +65,7 @@ const ToastTemplates = {
           <p className="text-sm">{message}</p>
         </div>
       </div>,
-      {
-        autoClose: false, // Stay on screen until dismissed
-        hideProgressBar: false,
-        progressClassName: "bg-yellow-300",
-        position: position,
-        toastClassName: "wide-toast", // Apply custom class for width
-      }
+      buildToastOptions(position, "bg-yellow-300", false)
     ),
 
   info: (message, title = "Info!", position = "bottom-right") =>
@@ -86,13 +80,7 @@ const ToastTemplates = {
           <p className="text-sm">{message}</p>
         </div>
       </div>,
-      {
-        autoClose: 3000,
-        hideProgressBar: false,
-        progressClassName: "bg-blue-300",
-        position: position,
-        toastClassName: "wide-toast", // Apply custom class for width
-      }
+      buildToastOptions(position, "bg-blue-300", 3000)
     ),
 };
 

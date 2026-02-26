@@ -10,12 +10,49 @@ const PasswordField = ({
   placeholder,
   hidden,
   type,
+  required = false,
+  className = "",
+  inlineToggle = false,
+  toggleClassName = "",
+  onFocus,
+  onBlur,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  if (inlineToggle) {
+    return (
+      <div className="relative w-full">
+        <input
+          type={showPassword ? "text" : "password"}
+          value={preview ? "" : value || ""}
+          readOnly={readOnly}
+          disabled={readOnly || preview}
+          onChange={onChange}
+          placeholder={placeholder}
+          hidden={hidden}
+          required={required}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          className={`w-full focus:outline-none focus:ring-0 ${className}`}
+        />
+        <button
+          type="button"
+          onClick={togglePasswordVisibility}
+          className={`absolute inset-y-0 right-2 my-auto flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-tl from-purple-700 to-pink-500 ${toggleClassName}`}
+          aria-label={showPassword ? "Hide password" : "Show password"}
+        >
+          <FontAwesomeIcon
+            icon={showPassword ? faEyeSlash : faEye}
+            className="h-3 w-3 text-white"
+          />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -27,7 +64,10 @@ const PasswordField = ({
         onChange={onChange}
         placeholder={placeholder}
         hidden={hidden}
-        className="px-1 w-full focus:outline-none focus:ring-0 focus:border-none"
+        required={required}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        className={`px-1 w-full focus:outline-none focus:ring-0 focus:border-none ${className}`}
       />
       <div className="px-1 text-right flex justify-end">
         <div

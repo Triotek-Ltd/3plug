@@ -22,7 +22,11 @@ STRUCTURE = {
 
 
 def migrate_doc(
-    app_name: str, module: str, doc: Optional[str] = None, django_path: str = ""
+    app_name: str,
+    module: str,
+    doc: Optional[str] = None,
+    django_path: str = "",
+    doc_folder_override: Optional[str] = None,
 ) -> None:
     """Migrate a specific document within a module and app.
 
@@ -44,7 +48,11 @@ def migrate_doc(
     if not module_base_path:
         return  # Exit if no valid path is found
 
-    doc_folder_path = os.path.join(module_base_path, doctype_folder_name, doc_name)
+    doc_folder_path = (
+        doc_folder_override
+        if doc_folder_override
+        else os.path.join(module_base_path, doctype_folder_name, doc_name)
+    )
 
     for folder, structure_name in STRUCTURE.items():
         module_file_path = os.path.join(

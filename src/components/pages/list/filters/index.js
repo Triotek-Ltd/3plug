@@ -20,6 +20,8 @@ const Filters = ({
   onFilterChange,
   handleClearFilters,
   applyFilters,
+  includeDefaultId = true,
+  showSort = true,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [filterList, setFilterList] = useState([]);
@@ -65,7 +67,7 @@ const Filters = ({
     id: { type: "text", value: "", matchType: "__icontains" },
     // search: { type: "text", value: "", matchType: "__icontains" },
   };
-  const combinedFilters = { ...defaultIdFilter, ...filters };
+  const combinedFilters = includeDefaultId ? { ...defaultIdFilter, ...filters } : { ...filters };
 
   const getFieldComponent = (filterKey, filter) => {
     const fieldConfig = config.fields.find(
@@ -161,17 +163,18 @@ const Filters = ({
               </button>
             </div>
           </div>
-          <div className="flex w-full items-start justify-end col-span-2">
-            {/* Include the Sort component here */}
-            <Sort
-              fields={Object.keys(combinedFilters)}
-              sortField={sortField}
-              sortOrder={sortOrder}
-              onSortFieldChange={handleSortFieldChange}
-              onSortOrderChange={handleSortOrderChange}
-              config={config}
-            />
-          </div>
+          {showSort ? (
+            <div className="flex w-full items-start justify-end col-span-2">
+              <Sort
+                fields={Object.keys(combinedFilters)}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                onSortFieldChange={handleSortFieldChange}
+                onSortOrderChange={handleSortOrderChange}
+                config={config}
+              />
+            </div>
+          ) : null}
 
           {/* Filter Dropdown */}
           {showDropdown && (

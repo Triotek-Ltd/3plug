@@ -9,23 +9,30 @@ const SelectField = ({
   hidden,
   options,
   placeholder,
+  className = "",
+  onFocus,
+  onBlur,
 }) => {
   if (hidden) return null;
 
-  // Convert string options to { label, value } format
-  const formattedOptions = options?.map((opt) => ({ label: opt, value: opt }));
+  // Accept string options or { label, value } objects
+  const formattedOptions = (options || []).map((opt) =>
+    typeof opt === "string" ? { label: opt, value: opt } : opt
+  );
 
   // Convert selected value to the expected format for react-select
   const selectedValue =
     formattedOptions.find((opt) => opt.value === value) || null;
 
   return (
-    <div className="relative flex flex-col w-full text-[14px]">
+    <div className={`relative flex flex-col w-full text-[14px] ${className}`}>
       <Select
         isMulti={false}
         options={formattedOptions}
         value={selectedValue}
         onChange={(selected) => onChange(selected?.value)}
+        onFocus={onFocus}
+        onBlur={onBlur}
         placeholder={placeholder || "Select option"}
         classNamePrefix="custom-select"
         isDisabled={readOnly || preview}

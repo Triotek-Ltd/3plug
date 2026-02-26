@@ -2,6 +2,8 @@ export default function WorkspaceShell({
   dir = "ltr",
   children,
   className = "",
+  scrollable = true,
+  scrollClassName = "",
 }) {
   const isRtl = dir === "rtl";
 
@@ -18,7 +20,14 @@ export default function WorkspaceShell({
         <div className={`pointer-events-none absolute ${isRtl ? "-left-10" : "-right-10"} top-16 -z-10 h-56 w-56 rounded-full bg-cyan-300/25 blur-3xl`} />
         <div className={`pointer-events-none absolute ${isRtl ? "-right-10" : "-left-10"} top-24 -z-10 h-56 w-56 rounded-full bg-emerald-300/20 blur-3xl`} />
         <div className="pointer-events-none absolute bottom-6 left-1/2 -z-10 h-32 w-[70%] -translate-x-1/2 rounded-full bg-slate-900/5 blur-3xl" />
-        {children}
+
+        <div
+          className={scrollable
+            ? `relative z-0 max-h-[calc(100vh-7.5rem)] overflow-y-auto overscroll-contain pr-1 ${scrollClassName}`
+            : `relative z-0 ${scrollClassName}`}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

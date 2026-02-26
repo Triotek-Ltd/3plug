@@ -106,8 +106,11 @@ def write_viewset(
 
 def add_import_to_signals(app_name, module_name, doc_name):
     signals_path = os.path.join(DJANGO_PATH, f"{app_name}_app", "signals.py")
+    # 3plug wrapper app should import generated Django model modules, not legacy
+    # source app doctype modules. This keeps migration/runtime aligned with the
+    # manifold wrapper structure.
     import_statement = (
-        f"from {app_name}.{module_name}.doctype.{doc_name}.{doc_name} import *"
+        f"from {app_name}_app.models.{module_name}.{doc_name} import *"
     )
 
     # Ensure the file exists

@@ -1,5 +1,6 @@
 import os
 from typing import List
+from pathlib import Path
 
 import click
 
@@ -28,6 +29,16 @@ def add_init_files(folder_path: str, modules: List[str]) -> None:
         #     init_file.write(f"from .{module_snake_case} import *\n")
 
 
+def write_platform_core_platform_api(django_path: str) -> None:
+    """Write shared PLT endpoints used by shell/dynamic workspace screens."""
+    target = os.path.join(django_path, "platform_core_app", "views", "platform_api.py")
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    template_path = Path(__file__).with_name("templates") / "platform_core_platform_api.py.tpl"
+    content = template_path.read_text(encoding="utf-8")
+    with open(target, "w", encoding="utf-8") as f:
+        f.write(content)
+
+
 def migrate_app(app_name: str, django_path: str) -> None:
     """Migrate a specific app by updating modules and folders as per configuration.
 
@@ -49,6 +60,13 @@ def migrate_app(app_name: str, django_path: str) -> None:
 
     modules = find_modules(app_name)
 
+    # Reset generated signals imports for this wrapper app so stale legacy imports
+    # do not persist across migration runs.
+    signals_path = os.path.join(django_path, f"{app_name}_app", "signals.py")
+    os.makedirs(os.path.dirname(signals_path), exist_ok=True)
+    with open(signals_path, "w", encoding="utf-8") as signals_file:
+        signals_file.write("")
+
     for folder, _ in STRUCTURE.items():
         module_folder_path = os.path.join(django_path, f"{app_name}_app", folder)
 
@@ -66,17 +84,23 @@ def migrate_app(app_name: str, django_path: str) -> None:
                 if os.path.isfile(file_path) and not filename.startswith("__init__.py"):
                     os.remove(file_path)
 
-            if not os.listdir(module_folder_path):
-                os.rmdir(module_folder_path)
+            # On Windows, generated app folders may carry the ReadOnly directory
+            # attribute and os.rmdir can fail even when the folder is empty.
+            # We do not need to remove the folder here; it can be reused safely.
         else:
             os.makedirs(module_folder_path, exist_ok=True)
 
         add_init_files(module_folder_path, modules)
 
-    update_urls_py(app_name, modules, django_path)
     if modules:
         for module in modules:
             migrate_module(app_name, module, django_path)
+
+    if app_name == "platform_core":
+        write_platform_core_platform_api(django_path)
+
+    # Generate URLs after viewsets/models have been written.
+    update_urls_py(app_name, modules, django_path)
 
     # create_manual_migrations(app_name, django_path)
 

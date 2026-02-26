@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import Layout from "@/components/core/account/Layout";
 import Loading from "@/components/core/account/Loading";
+import TextField from "@/components/fields/TextField";
+import PasswordField from "@/components/fields/PasswordField";
 import { saveToDB } from "@/utils/indexedDB";
 import { useRouter } from "next/router";
 
@@ -13,7 +15,6 @@ export default function LoginForm({ onLoginSuccess }) {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -39,7 +40,7 @@ export default function LoginForm({ onLoginSuccess }) {
           );
           router.push("/otp-verification");
         } else {
-          router.push("/").then(() => {
+          router.push("/home").then(() => {
             router.reload();
           });
         }
@@ -58,81 +59,86 @@ export default function LoginForm({ onLoginSuccess }) {
   };
 
   return (
-    <Layout gradientFrom="purple-700" gradientTo="pink-500">
+    <Layout
+      gradientFrom="sky-600"
+      gradientTo="cyan-500"
+      className="bg-slate-50"
+      panelClassName="w-[360px] md:w-[460px]"
+    >
       {isLoading && <Loading />}
-      <div className={`mx-auto p-8 ${isLoading ? "opacity-60" : ""}`}>
-        <div className="flex flex-row justify-between">
-          <h1 className="text-2xl text-black font-semibold">Login</h1>
-          <Link href="/">
-            <div className="transition duration-300">Home</div>
-          </Link>
+      <div className={`mx-auto p-6 md:p-8 ${isLoading ? "opacity-60" : ""}`}>
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-2xl font-semibold text-slate-900">Log In</h1>
+          <div className="flex items-center gap-3 text-sm">
+            <Link href="/signup" className="transition duration-300 text-sky-700 hover:text-sky-800">
+              Sign Up
+            </Link>
+            <Link href="/" className="transition duration-300 text-slate-600 hover:text-slate-900">
+              Home
+            </Link>
+          </div>
         </div>
+        <p className="mt-2 text-xs leading-5 text-slate-500">
+          Access your 3plug platform workspace. Account type is managed from signup/profile, not here.
+        </p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleLogin();
           }}
-          className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7"
+          className="mt-5 space-y-4 text-sm text-gray-700"
         >
-          <div className="relative">
-            <input
+          <AuthFieldRow label="Username" required>
+            <TextField
               required
-              autoComplete="off"
-              id="username"
-              name="username"
-              type="text"
+              autoComplete="username"
               value={credentials.username}
               onChange={(e) =>
                 setCredentials({ ...credentials, username: e.target.value })
               }
-              className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:border-b-blue-600"
-              placeholder="Username"
+              placeholder="Enter username"
+              className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 placeholder:text-slate-500 focus:border-sky-400"
             />
-            <label
-              htmlFor="username"
-              className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
-            >
-              Username <span className="text-red-600">*</span>
-            </label>
-          </div>
-          <div className="relative">
-            <input
+          </AuthFieldRow>
+
+          <AuthFieldRow label="Password" required>
+            <PasswordField
               required
-              autoComplete="off"
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"} // Toggle between text and password
               value={credentials.password}
               onChange={(e) =>
                 setCredentials({ ...credentials, password: e.target.value })
               }
-              className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:border-b-blue-600"
-              placeholder="Password"
+              placeholder="Enter password"
+              inlineToggle
+              className="h-10 rounded-lg border border-slate-300 bg-white px-3 pr-10 text-sm font-medium text-slate-900 placeholder:text-slate-500 focus:border-sky-400"
             />
-            <label
-              htmlFor="password"
-              className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
-            >
-              Password <span className="text-red-600">*</span>
-            </label>
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)} // Toggle showPassword state
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600"
-            >
-              <i
-                className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
-              ></i>
-            </button>
+          </AuthFieldRow>
+
+          <div className="flex items-center justify-start text-xs">
+            <Link href="/forgot-password" className="font-semibold text-sky-700 hover:text-sky-800">
+              Forgot password?
+            </Link>
           </div>
+
           <button
             type="submit"
-            className="relative inline-block w-full px-6 py-3 my-4 text-xs font-bold text-center text-white uppercase align-middle transition-all ease-in border-0 rounded-lg select-none shadow-soft-md bg-150 bg-x-25 leading-pro bg-gradient-to-tl from-purple-800 to-purple-700 hover:shadow-soft-2xl hover:scale-102"
+            className="relative inline-block w-full rounded-lg border-0 bg-gradient-to-tl from-sky-700 to-cyan-600 px-6 py-3 text-xs font-bold uppercase text-white shadow-soft-md transition-all hover:shadow-soft-2xl"
           >
             Login
           </button>
         </form>
       </div>
     </Layout>
+  );
+}
+
+function AuthFieldRow({ label, required = false, children }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2">
+      <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
+        {label} {required ? <span className="text-red-600">*</span> : null}
+      </label>
+      <div className="min-h-8">{children}</div>
+    </div>
   );
 }

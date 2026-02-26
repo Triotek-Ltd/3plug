@@ -62,10 +62,25 @@ export const buildShellModel = ({ session, catalog, workspaces }) => {
   const accountType =
     sessionData?.account?.account_type ||
     session?.context?.account?.account_type ||
-    "business";
+    null;
 
   const modules = catalogData.modules || [];
   const submodules = catalogData.submodules || [];
+  const backendTopNav = sessionData.top_nav || sessionData.topNav || [];
+  const backendLauncherSections = catalogData.launcher_sections || catalogData.launcherSections || [];
+  const derivedLauncherSections = modules.length
+    ? [
+        {
+          id: "plt-platform-core",
+          title: "Platform Core",
+          appId: "platform_core",
+          modules: modules.map((module) => ({
+            ...module,
+            submodules: submodules.filter((sub) => sub.module_id === module.id),
+          })),
+        },
+      ]
+    : [];
 
   return {
     accountType,
@@ -75,24 +90,9 @@ export const buildShellModel = ({ session, catalog, workspaces }) => {
     modules,
     submodules,
     workspaces: workspaceData.workspaces || [],
-    topNav: [
-      { id: "home", label: "Home", href: "/home" },
-      { id: "launcher", label: "Launcher", href: "/launcher" },
-      { id: "platform", label: "Platform", href: "/platform" },
-      { id: "publisher", label: "Publisher", href: "/publisher", hidden: accountType === "business" },
-      { id: "admin", label: "Admin", href: "/admin" },
-    ],
-    launcherSections: [
-      {
-        id: "plt-platform-core",
-        title: "Platform Core",
-        appId: "platform_core",
-        modules: modules.map((module) => ({
-          ...module,
-          submodules: submodules.filter((sub) => sub.module_id === module.id),
-        })),
-      },
-    ],
+    // Backend-owned nav model (empty array fallback only; no fabricated route data).
+    topNav: backendTopNav.length > 0 ? backendTopNav : [],
+    launcherSections:
+      backendLauncherSections.length > 0 ? backendLauncherSections : derivedLauncherSections,
   };
 };
-
